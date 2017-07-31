@@ -29,3 +29,11 @@ def CurrTime():
 def CurrDay():
     'curr data of 2017-12-12'
     return time.strftime('%Y-%m-%d',time.localtime(time.time()))
+
+
+def dir_name(x):
+    "reutn directory path name"
+    if x:
+        if x[-1] == '/':
+            x = x[0:-1]
+    return x

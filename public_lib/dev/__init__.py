@@ -1,5 +1,5 @@
 from prog_rate import  proging_rate
-from dev_lib import all_file,json_data,CurrTime,CurrDay
+from dev_lib import all_file,dir_name,json_data,CurrTime,CurrDay
 
 # __all__ = ["_json_data"]
 
