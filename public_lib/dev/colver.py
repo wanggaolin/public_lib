@@ -34,5 +34,3 @@ def color(x,name='red',number=False):
     else:
         return _color().red(x, name)
 
-
-# print color('123',name='12222')
