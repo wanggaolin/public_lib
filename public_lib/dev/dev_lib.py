@@ -3,6 +3,7 @@
 import os
 import time
 import json
+import telnetlib
 
 def all_file(dir_path):
     'show file or directory in directory'
@@ -37,3 +38,14 @@ def dir_name(x):
         if x[-1] == '/':
             x = x[0:-1]
     return x
+
+def telent(*args,**kwargs):
+    "telet ip:port"
+    try:
+        msg = ''
+        Open = telnetlib.Telnet()
+        Open.open(kwargs['ip'],int(kwargs['port']),timeout=kwargs.get('timeout',4))
+        return True,msg
+    except Exception, e:
+        msg = e
+    return False,msg
