@@ -17,7 +17,7 @@ def json_data(x,indent=4):
         try:
             if type(x) is str:
                 x = json.loads(x)
-            x = json.dumps(x,indent=indent,ensure_ascii=True).encode('utf-8')
+            x = json.dumps(x,indent=indent,ensure_ascii=False)
         except Exception,e:
             pass
     return x
