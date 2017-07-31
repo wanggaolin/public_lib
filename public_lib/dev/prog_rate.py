@@ -27,7 +27,7 @@ def format_time_int(t):
     return ':'.join([ str(i).rjust(2,'0') for i in end])
 
 
-class _proging_rate(object):
+class proging_rate(object):
     def __init__(self,*args,**kwargs):
         """
         :param args:
@@ -67,8 +67,4 @@ class _proging_rate(object):
         print ""
 
 if __name__ == "__main__":
-    F = proging_rate(screen_max=1000,screen_name='1000M',rate_symbol='#')
-    for i in range(1000):
-        time.sleep(0.1)
-        F.update("%sM" % i)
-    F.end()
+    pass
