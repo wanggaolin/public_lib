@@ -50,32 +50,6 @@ def telnet(*args,**kwargs):
         msg = e
     return False,msg
 
-def bank_check(bank):
-    'check bank number'
-    digits = list(map(int, str(bank).strip()))
-    j = sum(digits[-1::-2])
-    o = 0
-    for n in digits[-2::-2]:
-        l = n * 2
-        if l > 9: l = l - 9
-        o += l
-    return ((j + o) % 10) == 0
-
-
-def card_check(card_number):
-    'check card '
-    id_number = str(card_number).strip()
-    if 1800 < int(id_number[6:10]) < 2100:
-        if int(id_number[10:12]) < 13 and int(id_number[12:14]) < 32:
-            ratio = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
-            corres = {'0': 1, '1': 0, '2': 'x', '3': 9, '4': 8, '5': 7, '6': 6, '7': 5, '8': 4, '9': 3, '10': 2}
-            j = 0
-            for num, car in enumerate(list(id_number)[:-1]):
-                j += int(car) * int(ratio[num])
-            return str(corres[str(j % 11)]) == str(id_number.lower()[-1])
-    return False
-
-
 def hide_str(Str, start=2, end=3):
     'hide text'
     try:

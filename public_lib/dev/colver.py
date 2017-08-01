@@ -14,6 +14,7 @@ class _color(object):
         }
 
     def red(self,x,color):
+        'color is color name'
         try:
             return "\033[1;%sm%s\033[m" % (self.font_color[color],x)
         except KeyError,e:
@@ -24,6 +25,7 @@ class _color(object):
 
 
 def color(x,name='red',number=False):
+    'color is color name'
     if number:
         if 0 < int(number) < 255:
             return _color().red_number(x,number)
