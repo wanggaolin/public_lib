@@ -12,5 +12,9 @@ setuptools.setup(
     url='https://github.com/wanggaolin/public_lib',
     license='GPL 2',
     packages=setuptools.find_packages(exclude=['tests']),
-    keywords = ['public','lib']
+    keywords = ['public','lib'],
+    install_requires = [
+        'psutil'
+    ]
+#
 )
