@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #coding=utf-8
-from error_msg import *
+from error_msg import RaiseVlues
 
 class _color(object):
     def __init__(self):
@@ -17,9 +17,7 @@ class _color(object):
         try:
             return "\033[1;%sm%s\033[m" % (self.font_color[color],x)
         except KeyError,e:
-            print self.font_color.keys()
-            msg = "color mush be:%s"% self.font_color.keys()
-            raise RaiseVlues(msg,value="color mush be:%s"% self.font_color.keys())
+            raise RaiseVlues("color mush be:%s"% self.font_color.keys())
 
     def red_number(self,x,num):
         return "\033[1;%sm%s\033[m" % (int(num),x)
