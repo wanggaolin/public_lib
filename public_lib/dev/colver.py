@@ -25,7 +25,7 @@ class _color(object):
 
 
 def color(x,name='red',number=False):
-    'color is color name'
+    'color is color name `str  name="color name"  number="color number"`'
     if number:
         if 0 < int(number) < 255:
             return _color().red_number(x,number)

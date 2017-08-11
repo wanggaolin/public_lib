@@ -7,7 +7,7 @@ import traceback
 from error_msg import RaiseVlues
 
 def bank_check(bank):
-    'check bank number'
+    'check bank number `bank number`'
     digits = list(map(int, str(bank).strip()))
     j = sum(digits[-1::-2])
     o = 0
@@ -19,7 +19,7 @@ def bank_check(bank):
 
 
 def card_check(card_number):
-    'check card '
+    'check card `card number`'
     id_number = str(card_number).strip()
     if 1800 < int(id_number[6:10]) < 2100:
         if int(id_number[10:12]) < 13 and int(id_number[12:14]) < 32:
@@ -32,7 +32,7 @@ def card_check(card_number):
     return False
 
 class req_check(object):
-    'check argument'
+    'check argument `data={}`'
     def __init__(self,*args,**kwargs):
         'with data check `data`'
         self.data = kwargs['data']
@@ -86,7 +86,7 @@ class req_check(object):
         return status
 
     def rule(self,*args,**kwargs):
-        'check rule `date`'
+        'check rule `rule={}`'
         try:
             self.rule = kwargs['rule']
             for rule_name,rule_value in  self.rule.items(): #遍历所有规则

@@ -5,7 +5,7 @@ import setuptools
 setuptools.setup(
     name='public_lib',
     version='0.4',
-    description="python public lib for all",
+    description="python public lib for me",
     classifiers=[],
     author='GaoLin',
     author_email='brach@lssin.com',
@@ -16,5 +16,5 @@ setuptools.setup(
     install_requires = [
         'psutil'
     ]
-#
+
 )
