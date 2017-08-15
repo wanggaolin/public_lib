@@ -1,9 +1,10 @@
+### python 公共方法方便库,方便调用
 #### install    
     cd /usr/local/src && git clone https://github.com/wanggaolin/public_lib.git && \
     cd public_lib && python setup.py install || cd public_lib/ && git pull && python setup.py  install
 
-##1系统模块    
-####1.0.1 进度条
+## 1系统模块    
+#### 1.0.1 进度条
         import time
         F = public_lib.proging_rate(screen_max=1000,screen_name='1000M',rate_symbol='#')
         for i in range(1000):
@@ -12,7 +13,7 @@
         F.end()
     
 
-####1.0.2 漂亮的json    
+#### 1.0.2 漂亮的json    
 
     In [4]: print public_lib.json_data({'a':'你好'},indent=8)
     {
@@ -27,7 +28,7 @@
     In [6]: 
 
 
-####1.0.3 方便的time模块
+#### 1.0.3 方便的time模块
 
     In [10]: public_lib.CurrTime()
     Out[10]: '2017-07-31 11:04:01'
@@ -36,7 +37,7 @@
     Out[11]: '2017-07-31'
 
 
-####1.0.4 文件的文件模块
+#### 1.0.4 文件的文件模块
 
     In [17]: public_lib.all_file('.')
     Out[17]: ['./+~JF1688623560254782582.tmp']
@@ -44,12 +45,12 @@
     In [7]: public_lib.dir_name('/a/b')
     Out[7]: '/a/b'
         
-####1.0.5 方便的网络模块
+#### 1.0.5 方便的网络模块
     In [6]: public_lib.telnet(ip='1.1.1.1',port=22,timeout=10)
     Out[6]: (False, socket.timeout('timed out'))
            
 
-####1.0.6 输出带颜色字体
+#### 1.0.6 输出带颜色字体
     In [3]: print public_lib.color('x')
     x
     
@@ -59,12 +60,12 @@
     In [5]: print public_lib.color('x',number=35)
     x
     
-####1.0.7 隐藏文本字符替换为*
+#### 1.0.7 隐藏文本字符替换为*
     In [2]: public_lib.hide_str('nihaoma',start=2,end=4) #隐藏字符
     Out[2]: 'ni**oma'
     
     
-####1.0.8参数校验
+#### 1.0.8参数校验
     In [2]: public_lib.bank_check('6228480402564890018')
     Out[2]: True
 
@@ -99,30 +100,30 @@
             #data:原验证的数据
             #msg:失败原因
 
-####1.0.９　随机获取use-agent
+#### 1.0.９　随机获取use-agent
     In [8]: public_lib.user_agent()
     Out[8]: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36'
 
-####1.0.９　获取随机一个hashid或根据指定字符串返回一个id
+#### 1.0.９　获取随机一个hashid或根据指定字符串返回一个id
     In [5]: public_lib.hash_id()
     Out[5]: '7580a0faf2b11cf149b6f74067a30a974c1eee71'
     
     In [6]: public_lib.hash_id('hello word')
     Out[6]: 'e0738b87e67bbfc9c5b77556665064446430e81c'
 
-####1.1.0　获取随机一个hashid或根据指定字符串返回一个id
+#### 1.1.0　获取随机一个hashid或根据指定字符串返回一个id
     In [8]: public_lib.md5_id()
     Out[8]: '9aba2e0c5be39d89842f0cf6ff12a7f5'
     
     In [9]: public_lib.md5_id('hello word')
     Out[9]: '13574ef0d58b50fab38ec841efe39df4'
 
-####1.1.1　随机获取use-agent
+#### 1.1.1　随机获取use-agent
     In [10]: public_lib.user_agent()
     Out[10]: 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36'
 
-##2邮箱模块
-####2.0.1　发送邮箱附件,支持多个文件
+## 2邮箱模块
+#### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(
         smtp='smtp.xxxxx.com',
         user='alert@xxxxx.com',
@@ -131,7 +132,7 @@
         to_list=['brach@lssin.com'],
         file_list=['/tmp/123','/tmp/456']
     )
-####2.0.2　发送邮箱
+#### 2.0.2　发送邮箱
     print public_lib.send_mail(
         smtp='smtp.xxxxx.com',
         user='alert@xxxxx.com',
@@ -141,15 +142,15 @@
         text="hello word",
     )    
 
-##3监控模块            
-####3.0.1　根据某个进程名称获取对应的pid和使用的内存大小
+## 3监控模块            
+#### 3.0.1　根据某个进程名称获取对应的pid和使用的内存大小
     In [2]: public_lib.pid('java')
     Out[2]: pid(memory=1056864, pid=['6168'])
     
     
     
-##4日志模块
-####4.0.1 记录日志到系统日志中[/var/log/message]
+## 4日志模块
+#### 4.0.1 记录日志到系统日志中[/var/log/message]
     public_lib.syslog.error("test log")  
     
     
