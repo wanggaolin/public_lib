@@ -82,12 +82,17 @@ def code_try(*args,**kwargs):
         return wrapper
     return decorator
 
-def hash_id(x=int(time.time())):
+def hash_id(x=False):
+    if x is False:
+        x = int(time.time()*10000)
     return hashlib.sha1(str(x)).hexdigest()
 
-def md5_id(x=int(time.time())):
+def md5_id(x=False):
+    if x is False:
+        x = int(time.time()*10000)
     return hashlib.md5(str(x)).hexdigest()
 
 def user_agent():
     'get user-agent'
     return random.choice(agent_list)
+
