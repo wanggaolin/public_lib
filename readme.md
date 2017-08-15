@@ -1,4 +1,4 @@
-####install    
+#### install    
     cd /usr/local/src && git clone https://github.com/wanggaolin/public_lib.git && \
     cd public_lib && python setup.py install || cd public_lib/ && git pull && python setup.py  install
 
