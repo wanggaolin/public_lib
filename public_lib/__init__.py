@@ -1,12 +1,13 @@
+#!/usr/bin/env python
 from dev.prog_rate import  proging_rate
-from dev.dev_lib import all_file,dir_name,json_data,CurrTime,CurrDay,telnet,\
-    hide_str,code_try,user_agent,hash_id,md5_id
+from dev.dev_lib import all_file,dir_name,file_name,json_data,CurrTime,CurrDay,telnet,\
+    hide_str,code_try,user_agent,hash_id,md5_id,list_cut,check_ip,check_ip_private,uname
 from dev.colver import color
-from dev.req import bank_check,card_check,req_check
+from dev.req import check_bank,check_card,check_req,check_symbols
 from dev.process import pid
 from dev.mails import  send_mail,send_file
 from dev.syslog_log import _system_logs as syslog
 
 from system.monitor import *
 
-version = '0.4'
+_version = '0.4'

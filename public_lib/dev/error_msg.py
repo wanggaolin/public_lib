@@ -3,6 +3,9 @@
 
 class RaiseVlues(Exception):
     def __init__(self,value):
+        """
+        :param value:message text
+        """
         self.value = value
 
     def __str__(self):

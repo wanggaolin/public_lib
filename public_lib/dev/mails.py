@@ -73,21 +73,33 @@ class _send_mail(object):
 
 
 def send_mail(smtp=None,user=None,passwd=None,subject='',text='',to_list=[]):
-    "send mail to"
+    """
+    send email of text
+    :param smtp: email of smtp
+    :param user: email of user
+    :param passwd: email of password
+    :param subject: email of subject
+    :param text: send text
+    :param to_list: revert user list
+    :return:
+    """
     if  not type(to_list) is list:
         raise  RaiseVlues("to_list must be list")
     return _send_mail(smtp=smtp,user=user,passwd=passwd,subject=subject,to_list=to_list).mail(text)
 
 def send_file(smtp=None,user=None,passwd=None,subject='',file_list='',to_list=[]):
-    "send mail to"
+    """
+    send email of file
+    :param smtp: email of smtp
+    :param user: email of user
+    :param passwd: email of password
+    :param subject: email of subject
+    :param file_list: file list,example:[file1,file2]
+    :param to_list: revert user list
+    :return:
+    """
     if  not type(to_list) is list:
         raise  RaiseVlues("to_list must be list")
-    if  not type(file_list) is list:
+    elif  not type(file_list) is list:
         raise  RaiseVlues("file_list must be list")
     return _send_mail(smtp=smtp,user=user,passwd=passwd,subject=subject,to_list=to_list).file(file_list)
-
-
-
-
-
-

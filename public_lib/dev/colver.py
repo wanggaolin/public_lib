@@ -14,18 +14,32 @@ class _color(object):
         }
 
     def red(self,x,color):
-        'color is color name'
+        """
+        :param x: conntext
+        :param color:=color name of read or green ...
+        :return:conntext
+        """
         try:
             return "\033[1;%sm%s\033[m" % (self.font_color[color],x)
         except KeyError,e:
             raise RaiseVlues("color mush be:%s"% self.font_color.keys())
 
     def red_number(self,x,num):
+        """
+        :param x:conntext
+        :param num: color number of 31,32,33,34,35
+        :return: conntext
+        """
         return "\033[1;%sm%s\033[m" % (int(num),x)
 
 
 def color(x,name='red',number=False):
-    'color is color name `str  name="color name"  number="color number"`'
+    """
+    :param x: conntext
+    :param name: color name of read or green ...
+    :param number: color number of 31,32,33,34,35
+    :return: conntext
+    """
     if number:
         if 0 < int(number) < 255:
             return _color().red_number(x,number)

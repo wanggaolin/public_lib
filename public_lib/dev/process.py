@@ -37,5 +37,8 @@ class _pid(object):
 
 
 def pid(pid_name):
-    'show pid memory pid  '
+    """
+    :param pid_name:pid number
+    :return:
+    """
     return _pid(pid_name).main()

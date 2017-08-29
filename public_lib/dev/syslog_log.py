@@ -6,7 +6,6 @@ import syslog
 class _syslog(object):
     def __int__(self):
         pass
-
     def info(self,*args,**kwargs):
         syslog.syslog(syslog.LOG_INFO,*args,**kwargs)
 

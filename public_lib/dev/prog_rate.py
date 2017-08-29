@@ -46,6 +46,10 @@ class proging_rate(object):
         return "%0.2f" % ((float(self.number) / self.screen_max)*100)
 
     def update(self,data):
+        """
+        :param data:show value
+        :return:
+        """
         try:
             self._rate()
             data = str(data)
