@@ -5,14 +5,13 @@
 
 ## 1系统模块    
 #### 1.0.1 进度条
-        import time
-        F = public_lib.proging_rate(screen_max=1000,screen_name='1000M',rate_symbol='#')
-        for i in range(1000):
-            time.sleep(0.1)
-            F.update("%sM" % i)
-        F.end()
+    import time
+    F = public_lib.proging_rate(screen_max=1000,screen_name='1000M',rate_symbol='#')
+    for i in range(1000):
+        time.sleep(0.1)
+        F.update("%sM" % i)
+    F.end()
     
-
 #### 1.0.2 漂亮的json        
     In [5]: print public_lib.json_data({'a':'你好'})
     {
@@ -54,21 +53,21 @@
     Out[2]: True
 
     #rule规则列表
-    number:True     必须是数字[小数点/整数/负数]
-    number_str:True 只能输入字母或数字
-    time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23/1998/01/22。只验证格式，不验证有效性。
-    minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
-    maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
-    rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
-	max:5	        输入的数字不能大于 5。
-	min:10	        输入的数字不能小于 10。
-	file:True	    必须是一个文件路径。
-	email:True	    必须是一个邮箱
-	bank:True	    必须是一个银行卡号
-	card:True	    必须是一个身份证号
-	ip:True	        必须是一个合法ip地址
-	mobile:True	    必须是一个手机号码
-	symbols:Ture    不得包含特殊符号:*,%
+        number:True     必须是数字[小数点/整数/负数]
+        number_str:True 只能输入字母或数字
+        time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23/1998/01/22。只验证格式，不验证有效性。
+        minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
+        maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
+        rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
+        max:5	        输入的数字不能大于 5。
+        min:10	        输入的数字不能小于 10。
+        file:True	    必须是一个文件路径。
+        email:True	    必须是一个邮箱
+        bank:True	    必须是一个银行卡号
+        card:True	    必须是一个身份证号
+        ip:True	        必须是一个合法ip地址
+        mobile:True	    必须是一个手机号码
+        symbols:Ture    不得包含特殊符号:*,%
 	
     #用法
     print public_lib.json_data(public_lib.check_req(data={"number":'a'}).rule(rule=
@@ -131,6 +130,10 @@
     In [2]: public_lib.check_symbols('..')
     symbols(status=False, symbols='..')
 
+#### 1.1.8　网络ping
+    In [3]: public_lib.ping(ip='www.lssin.com')
+    ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
+
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(
@@ -151,6 +154,18 @@
         to_list=['brach@lssin.com'],
         text="hello word",
     )    
+
+#### 2.0.3　解析邮件文本[/var/spool/mail/root]
+    In [2]: a="""
+       ...: From MAILER-DAEMON  Mon Aug 28 17:49:35 2017
+       ...: ....
+       ...: Message-Id: <20170828094935.B018E143019@source.localdomain>
+       ...: Status: O
+       ...: 
+       ...: This is test mail.
+       ...: """
+    In [3]: print public_lib.mail_text(a.strip())
+    {'Date': 'Mon, 28 Aug 2017 17:49:35 +0800 (CST)', 'text': 'This is a MIME....
 
 ## 3监控模块            
 #### 3.0.1　根据某个进程名称获取对应的pid和使用的内存大小

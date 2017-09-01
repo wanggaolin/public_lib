@@ -6,9 +6,11 @@ import os
 import time
 import re
 import json
+import commands
 import telnetlib
 from syslog_log import _system_logs
 from http_agent import  agent_list
+from collections import namedtuple
 
 def _read(file_path):
     """
@@ -106,13 +108,14 @@ def file_name(x):
 def telnet(*args,**kwargs):
     "telnet ip:port"
     try:
-        msg = ''
+        status,msg = False,''
         Open = telnetlib.Telnet()
         Open.open(kwargs['ip'],int(kwargs['port']),timeout=kwargs.get('timeout',4))
-        return True,msg
+        status = True
     except Exception, e:
         msg = e
-    return False,msg
+    F = namedtuple('telnet', ['status', "msg"])
+    return F(status,msg)
 
 def hide_str(Str, start=2, end=3):
     'hide text `str  start=2 end=3`'
@@ -185,3 +188,53 @@ def uname():
     'get system uname'
     return re.split(r'\n|\\n',_read('/etc/issue'))[0].strip()
 
+def ping(ip=False,interval=1,count=3,debug=False):
+    """
+    :param ip:ping destination
+    :param interval:send package interval
+    :param count:send package count
+    :param debug:False
+    :return:
+    """
+    Shell = "ping -c {count} -i {interval} {ip}".format(count=count,interval=interval,ip=ip)
+    ShellEnd = commands.getoutput(Shell)
+    status = False
+    min = avg = max = mdev = text = lost = ''
+    F = namedtuple('ping', ['status', 'min', 'avg', 'max', 'mdev', 'lost','text'])
+    re_end = re.findall('min/avg/max/mdev = (.*) ms', ShellEnd)
+    if re_end:
+        lost = re.findall(r'(\d+%) packet loss',ShellEnd)[0]
+        End = re_end[0].split('/')
+        status = True
+        End.insert(0,status)
+    else:
+        End = [min,avg,max,mdev,status]
+    if debug:
+        text = ShellEnd
+    End.append(lost)
+    End.append(text)
+    return F._make(End)
+
+def terminal_size():
+    "get terminal size"
+    F = namedtuple('terminal_size', ['width', "height"])
+    env = os.environ
+    def ioctl_GWINSZ(fd):
+        try:
+            import fcntl, termios, struct
+            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
+        '1234'))
+        except:
+            return
+        return cr
+    cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+    if not cr:
+        try:
+            fd = os.open(os.ctermid(), os.O_RDONLY)
+            cr = ioctl_GWINSZ(fd)
+            os.close(fd)
+        except:
+            pass
+    if not cr:
+        cr = (env.get('LINES', False), env.get('COLUMNS', False))
+    return F._make(cr)

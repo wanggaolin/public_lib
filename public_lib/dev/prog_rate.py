@@ -2,6 +2,8 @@
 #encoding=utf-8
 import time
 import sys
+from dev_lib import terminal_size
+from blessings import Terminal
 
 def format_time_int(t):
     'format int to time 00:00:00'
@@ -40,10 +42,19 @@ class proging_rate(object):
         self.number = 0
         self.rate_symbol = kwargs.get('rate_symbol','*')
         self.start_time = time.time()
+        self._last_rate = 0
+        self._terminal_width = Terminal().width
+        self._protion = 100
+        if self._terminal_width < 140 and self._terminal_width > 41:
+            self._protion = self._terminal_width - 40
+
+    def _proportion(self,x):
+        pass
+
 
     #Speed of progress[%]
     def _rate(self):
-        return "%0.2f" % ((float(self.number) / self.screen_max)*100)
+        return "%0.2f" % ((float(self.number) / self.screen_max)*self._protion)
 
     def update(self,data):
         """
@@ -51,24 +62,23 @@ class proging_rate(object):
         :return:
         """
         try:
-            self._rate()
-            data = str(data)
             rate = self._rate()
-            sys.stdout.write("\r{rate_symbol}|{current}/{screen_name}|{rate}% [Time:{time}]".format(
-                screen_name=self.screen_name,
-                current=data.rjust(len(self.screen_name),' '),
-                rate=rate,
-                rate_symbol=(self.rate_symbol * int(round(float(rate)))).ljust(100,' '),
-                time=format_time_int(time.time()-self.start_time)
-            ))
+            if rate != self._last_rate:
+                self._last_rate = rate
+                data = str(data)
+                sys.stdout.write("\r{rate_symbol}|{current}/{screen_name}|{rate}% [Time:{time}]".format(
+                    screen_name=self.screen_name,
+                    current=data.rjust(len(self.screen_name),' '),
+                    rate=rate,
+                    rate_symbol=(self.rate_symbol * int(round(float(rate)))).ljust(self._protion, ' '),
+                    time=format_time_int(time.time()-self.start_time)
+                ))
+                sys.stdout.flush()
             self.number += 1
-            sys.stdout.flush()
         except KeyboardInterrupt,e:
-            pass
+            print ""
+            exit(1)
 
     def end(self):
         self.update(self.screen_name)
         print ""
-
-if __name__ == "__main__":
-    pass

@@ -14,7 +14,6 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['tests']),
     keywords = ['public','lib'],
     install_requires = [
-        'python>=2.7',
         'psutil',
     ]
 )

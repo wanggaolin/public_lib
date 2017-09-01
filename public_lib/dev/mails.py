@@ -2,6 +2,7 @@
 #encoding=utf-8
 import traceback
 import os
+import re
 import sys
 import smtplib
 import email.MIMEMultipart
@@ -11,6 +12,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from collections import namedtuple
 from error_msg import RaiseVlues
+from email import message_from_string
 
 class _send_mail(object):
     def __init__(self,*args,**kwargs):
@@ -72,6 +74,13 @@ class _send_mail(object):
             return self.status(False, e)
 
 
+def mail_text(text):
+    'fomat mail head or text'
+    message = message_from_string(text)
+    text = ''.join(re.split(r'\S+: \S+\n\n', text, 1)[1:])
+    return {"text":text,"From":message['From'],"To":message['To'],"Date":message['Date'],"Subject":message['Subject'],}
+
+
 def send_mail(smtp=None,user=None,passwd=None,subject='',text='',to_list=[]):
     """
     send email of text
@@ -103,3 +112,5 @@ def send_file(smtp=None,user=None,passwd=None,subject='',file_list='',to_list=[]
     elif  not type(file_list) is list:
         raise  RaiseVlues("file_list must be list")
     return _send_mail(smtp=smtp,user=user,passwd=passwd,subject=subject,to_list=to_list).file(file_list)
+
+
