@@ -45,8 +45,8 @@ class proging_rate(object):
         self._last_rate = 0
         self._terminal_width = Terminal().width
         self._protion = 100
-        if self._terminal_width < 140 and self._terminal_width > 41:
-            self._protion = self._terminal_width - 40
+        if self._terminal_width > 40:
+            self._protion = self._terminal_width - 36
 
     def _proportion(self,x):
         pass
