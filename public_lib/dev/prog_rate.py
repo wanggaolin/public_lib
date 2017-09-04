@@ -53,7 +53,10 @@ class proging_rate(object):
 
     #Speed of progress[%]
     def _rate(self):
-        return "%0.2f" % ((float(self.number) / self.screen_max)*self._protion)
+        return "%0.2f" % ((float(self.number) / self.screen_max)*100)
+
+    def _symbol_reate(self):
+        return "%0.2f" % ((float(self.number) / self.screen_max) * self._protion)
 
     def update(self,data):
         """
@@ -69,7 +72,7 @@ class proging_rate(object):
                     screen_name=self.screen_name,
                     current=data.rjust(len(self.screen_name),' '),
                     rate=rate,
-                    rate_symbol=(self.rate_symbol * int(round(float(rate)))).ljust(self._protion, ' '),
+                    rate_symbol=(self.rate_symbol * int(round(float(self._symbol_reate())))).ljust(self._protion, ' '),
                     time=format_time_int(time.time()-self.start_time)
                 ))
                 sys.stdout.flush()
