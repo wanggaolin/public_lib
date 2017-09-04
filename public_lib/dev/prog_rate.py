@@ -3,8 +3,7 @@
 import time
 import sys
 from dev_lib import terminal_size
-from blessings import Terminal
-
+from termin import  Terminal
 def format_time_int(t):
     'format int to time 00:00:00'
     end = ["00","00","00"]

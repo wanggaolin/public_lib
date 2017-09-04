@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 #encoding=utf-8
 import setuptools
-from public_lib import _version
 setuptools.setup(
     name='public_lib',
-    version=_version,
+    version='0.4',
     description="python public lib for me",
     classifiers=[],
     author='GaoLin',

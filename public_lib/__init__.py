@@ -11,4 +11,3 @@ from dev.syslog_log import _system_logs as syslog
 
 from system.monitor import *
 
-_version = '0.4'
