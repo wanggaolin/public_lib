@@ -70,17 +70,21 @@
         symbols:Ture    不得包含特殊符号:*,%
 	
     #用法
+        #rule:检查规则
+        #data:检查对象,必须是字典    
     print public_lib.json_data(public_lib.check_req(data={"number":'a'}).rule(rule=
         {
             "number":{                #字典中对应key  
                 "alias": "手机号",     #别名
                 "number": True,       #规则
-                "minlength":5         #规则可以写多个  
-                }
+                "minlength":5,        #规则可以写多个
+                "error":{
+                        "number":"手机号格式错误"  #自定义错误内容,非必须
+                }                  
+            }
         }
     ))
-    rule:检查规则
-    data:检查对象,必须是字典
+
 
     #返回
         {'status':False,'data':self.data,'msg':''}

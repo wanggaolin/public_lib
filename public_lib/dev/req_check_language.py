@@ -27,8 +27,8 @@ alarm_language = {
         "en": "not greater than {number}"
     },
     "min": {
-        "zh": "不能小于%{number}",
-        "en": "not less than%{number}"
+        "zh": "不能小于{number}",
+        "en": "not less than{number}"
     },
     "number_str": {
         "zh": "只能输入字母或数字",
