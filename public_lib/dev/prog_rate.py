@@ -45,7 +45,7 @@ class proging_rate(object):
         self._terminal_width = Terminal().width
         self._protion = 100
         if self._terminal_width > 40:
-            self._protion = self._terminal_width - 36
+            self._protion = self._terminal_width - 28 - len(str(self.screen_max)) - len(str(self.screen_name))
 
     def _proportion(self,x):
         pass
@@ -53,7 +53,7 @@ class proging_rate(object):
 
     #Speed of progress[%]
     def _rate(self):
-        return "%0.2f" % ((float(self.number) / self.screen_max)*100)
+        return "%0.1f" % ((float(self.number) / self.screen_max)*100)
 
     def _symbol_reate(self):
         return "%0.2f" % ((float(self.number) / self.screen_max) * self._protion)

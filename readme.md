@@ -85,7 +85,6 @@
         }
     ))
 
-
     #返回
         {'status':False,'data':self.data,'msg':''}
             #status:验证成功失败,[true/false]
@@ -138,6 +137,10 @@
     In [3]: public_lib.ping(ip='www.lssin.com')
     ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
 
+#### 1.1.9　检查2个文件内容是否一致
+    In [2]: public_lib.diff_file('/tmp/1','/tmp/2')
+    False
+    
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(

@@ -8,6 +8,7 @@ import re
 import json
 import commands
 import telnetlib
+import hashlib
 from syslog_log import _system_logs
 from http_agent import  agent_list
 from collections import namedtuple
@@ -238,3 +239,19 @@ def terminal_size():
     if not cr:
         cr = (env.get('LINES', False), env.get('COLUMNS', False))
     return F._make(cr)
+
+def diff_file(file1='',file2=''):
+    """
+    diff two file is identical
+    :param file1: file path
+    :param file2: file path
+    :return: True or Flase
+    """
+    try:
+        if os.path.getsize(file1) == os.path.getsize(file2):
+            with open(file1, r"rb") as P1:
+                with open(file2, r"rb") as P2:
+                    return hashlib.md5(P1.read()).hexdigest() == hashlib.md5(P2.read()).hexdigest()
+    except OSError,e:
+        pass
+    return False
