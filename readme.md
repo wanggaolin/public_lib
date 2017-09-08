@@ -138,7 +138,11 @@
     ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
 
 #### 1.1.9　检查2个文件内容是否一致
-    In [2]: public_lib.diff_file('/tmp/1','/tmp/2')
+    In [2]: public_lib.file_diff('/tmp/1','/tmp/2')
+    False
+
+#### 1.1.9　获取文件md5
+    In [2]: public_lib.file_md5('/tmp/12')
     False
     
 ## 2邮箱模块

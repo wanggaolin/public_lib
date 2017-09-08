@@ -240,7 +240,16 @@ def terminal_size():
         cr = (env.get('LINES', False), env.get('COLUMNS', False))
     return F._make(cr)
 
-def diff_file(file1='',file2=''):
+def file_md5(file=''):
+    "show file hash md5s"
+    try:
+        with open(file, r"rb") as P:
+            return hashlib.md5(P.read()).hexdigest()
+    except (OSError,IOError),e:
+        pass
+    return False
+
+def file_diff(file1='',file2=''):
     """
     diff two file is identical
     :param file1: file path
@@ -251,7 +260,37 @@ def diff_file(file1='',file2=''):
         if os.path.getsize(file1) == os.path.getsize(file2):
             with open(file1, r"rb") as P1:
                 with open(file2, r"rb") as P2:
-                    return hashlib.md5(P1.read()).hexdigest() == hashlib.md5(P2.read()).hexdigest()
-    except OSError,e:
+                    while 1:
+                        text1 = P1.read(1024*1000)
+                        text2 = P2.read(1024*1000)
+                        if text1 and text2:
+                            if hashlib.md5(text1).hexdigest() != hashlib.md5(text2).hexdigest():
+                                return False
+                        else:
+                            return True
+    except (OSError,IOError),e:
         pass
     return False
+
+def file_copy(file1='',file2=''):
+    """
+    copy file1 to file2
+    :param file1: file path
+    :param file2: file path
+    :return:tuple
+    """
+    try:
+        msg = [False,file1,file2,'']
+        with open(file1, r"rb") as P1:
+            with open(file2, r"w+") as P2:
+                while 1:
+                    text = P1.read(1024*1024)
+                    if text:
+                        P2.write(text)
+                    else:
+                        msg[0] = True
+                        break
+    except Exception, e:
+        msg[3] = e
+    F = namedtuple('copy', ['status','source','destination','msg'])
+    return F._make(msg)

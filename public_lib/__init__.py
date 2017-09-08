@@ -2,7 +2,7 @@
 from dev.prog_rate import  proging_rate
 from dev.dev_lib import all_file,dir_name,file_name,json_data,CurrTime,CurrDay,telnet,\
     hide_str,code_try,user_agent,hash_id,md5_id,list_cut,check_ip,check_ip_private,uname,\
-    ping,terminal_size,diff_file
+    ping,terminal_size,file_diff,file_copy,file_md5
 from dev.colver import color
 from dev.req import check_bank,check_card,check_req,check_symbols
 from dev.process import pid
