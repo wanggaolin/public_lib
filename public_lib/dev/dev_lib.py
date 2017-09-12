@@ -12,6 +12,7 @@ import hashlib
 from syslog_log import _system_logs
 from http_agent import  agent_list
 from collections import namedtuple
+from termin import Terminal
 
 def _read(file_path):
     """
@@ -219,26 +220,8 @@ def ping(ip=False,interval=1,count=3,debug=False):
 def terminal_size():
     "get terminal size"
     F = namedtuple('terminal_size', ['width', "height"])
-    env = os.environ
-    def ioctl_GWINSZ(fd):
-        try:
-            import fcntl, termios, struct
-            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-        '1234'))
-        except:
-            return
-        return cr
-    cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
-    if not cr:
-        try:
-            fd = os.open(os.ctermid(), os.O_RDONLY)
-            cr = ioctl_GWINSZ(fd)
-            os.close(fd)
-        except:
-            pass
-    if not cr:
-        cr = (env.get('LINES', False), env.get('COLUMNS', False))
-    return F._make(cr)
+    t = Terminal()
+    return F._make([t.width,t.height])
 
 def file_md5(file=''):
     "show file hash md5s"
@@ -272,6 +255,44 @@ def file_diff(file1='',file2=''):
         pass
     return False
 
+
+class _file_copy:
+    def __init__(self,file1='',file2=''):
+        self.file1 = file1
+        self.file2 = file2
+        self.msg = [False,'']
+
+    def _copy(self,des1,des2):
+        try:
+            with open(des1, r"rb") as P1:
+                with open(des2, r"w+") as P2:
+                    while 1:
+                        text = P1.read(1024*1024)
+                        if text:
+                            P2.write(text)
+                        else:
+                            self.msg[0] = True
+                            return True
+        except Exception, e:
+            self.msg[1] = e
+        return False
+
+    def copy_file(self):
+        self._copy(self.file1,self.file2)
+        return self.msg
+
+    def copy_dir(self):
+        try:
+            for PATH, ROOT, FILES in os.walk(self.file1):
+                os.makedirs(PATH.replace(self.file1,self.file2,1))
+                for File in FILES:
+                    i =  os.path.join(PATH,File)
+                    if self._copy(des1=i,des2=i.replace(self.file1,self.file2,1)) is False:
+                        return self.msg
+        except Exception, e:
+            self.msg[1] = e
+        return self.msg
+
 def file_copy(file1='',file2=''):
     """
     copy file1 to file2
@@ -279,18 +300,14 @@ def file_copy(file1='',file2=''):
     :param file2: file path
     :return:tuple
     """
-    try:
-        msg = [False,file1,file2,'']
-        with open(file1, r"rb") as P1:
-            with open(file2, r"w+") as P2:
-                while 1:
-                    text = P1.read(1024*1024)
-                    if text:
-                        P2.write(text)
-                    else:
-                        msg[0] = True
-                        break
-    except Exception, e:
-        msg[3] = e
-    F = namedtuple('copy', ['status','source','destination','msg'])
-    return F._make(msg)
+    F = namedtuple('copy', ['status', 'source', 'destination', 'msg'])
+    file1 =  dir_name(file1)
+    file2 =  dir_name(file2)
+    if os.path.exists(file1):
+        if os.path.isfile(file1):
+            end = _file_copy(file1=file1,file2=file2).copy_file()
+        else:
+            end = _file_copy(file1=file1,file2=file2).copy_dir()
+        return F._make([end[0], file1, file2, end[1]])
+    else:
+        return F._make([False, file1, file2, '%s: No such file or directory' % file1])

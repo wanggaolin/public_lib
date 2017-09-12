@@ -400,3 +400,4 @@ class Terminal(object):
         return FormattingString(formatting, self.normal)
 
 
+
