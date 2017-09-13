@@ -6,8 +6,10 @@ import os
 import time
 import re
 import json
+import socket
 import commands
 import telnetlib
+import commands
 import hashlib
 from syslog_log import _system_logs
 from http_agent import  agent_list
@@ -169,7 +171,8 @@ def check_ip(ip=None):
     if ip:
         end = re.findall(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', ip)
         if end:
-            if len([ i for i in end[0].split('.') if 255 > int(i) > 0]) == 4:
+            a,b,c,d = map(int,end[0].split('.'))
+            if 0 < a < 255 and b < 255 and c < 255 and 0 < d < 255:
                 return True
     return False
 
@@ -311,3 +314,14 @@ def file_copy(file1='',file2=''):
         return F._make([end[0], file1, file2, end[1]])
     else:
         return F._make([False, file1, file2, '%s: No such file or directory' % file1])
+
+def host_name():
+    'get system name'
+    return socket.gethostname()
+
+def host_ip():
+    'get system ip'
+    return [ {i[0]:i[1]}
+       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether \S+ brd \S+\n\s+inet (\S+)/\d+ brd \S+ ',commands.getoutput("ip addr")))
+    ]
+
