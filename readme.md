@@ -109,10 +109,10 @@
     In [9]: public_lib.md5_id('hello word')
     Out[9]: '13574ef0d58b50fab38ec841efe39df4'
 
-#### 1.1.3　随机获取use-agent
-    In [10]: public_lib.user_agent()
-    Out[10]: 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36'
-
+#### 1.1.3　获取文件md5
+    In [2]: public_lib.file_md5('/tmp/12')
+    Out[2]: False
+    
 #### 1.1.4　将list切割成n等份
     In [2]: public_lib.list_cut(range(10),4)
     Out[2]: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9]]
@@ -131,19 +131,23 @@
 
 #### 1.1.8　检查文本是否包含特殊符号
     In [2]: public_lib.check_symbols('..')
-    symbols(status=False, symbols='..')
+    Out[2]: symbols(status=False, symbols='..')
 
 #### 1.1.8　网络ping
     In [3]: public_lib.ping(ip='www.lssin.com')
-    ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
+    Out[3]: ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
 
 #### 1.1.9　检查2个文件内容是否一致
     In [2]: public_lib.file_diff('/tmp/1','/tmp/2')
-    False
+    Out[2]: False
 
-#### 1.1.9　获取文件md5
-    In [2]: public_lib.file_md5('/tmp/12')
-    False
+#### 1.2.0　获取系统主机名
+    In [2]: public_lib.host_name()
+    Out[2]: 'GaoLin'
+
+#### 1.2.1　获取系统所有ip
+    In [2]: public_lib.host_ip()
+    Out[2]:[{'eth0': '172.16.1.255'}, {'wlan0'
     
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
@@ -176,7 +180,7 @@
        ...: This is test mail.
        ...: """
     In [3]: print public_lib.mail_text(a.strip())
-    {'Date': 'Mon, 28 Aug 2017 17:49:35 +0800 (CST)', 'text': 'This is a MIME....
+    Out[3]:{'Date': 'Mon, 28 Aug 2017 17:49:35 +0800 (CST)', 'text': 'This is a MIE....
 
 ## 3监控模块            
 #### 3.0.1　根据某个进程名称获取对应的pid和使用的内存大小

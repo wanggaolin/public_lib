@@ -10,5 +10,5 @@ from dev.process import pid
 from dev.mails import  send_mail,send_file,mail_text
 from dev.syslog_log import _system_logs as syslog
 
-from system.monitor import *
+
 
