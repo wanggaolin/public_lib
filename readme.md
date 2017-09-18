@@ -91,6 +91,11 @@
             #data:原验证的数据
             #msg:失败原因
 
+
+#### 1.0.9　网络ping
+    In [3]: public_lib.ping(ip='www.lssin.com')
+    Out[3]: ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
+    
 #### 1.1.0　随机获取use-agent
     In [8]: public_lib.user_agent()
     Out[8]: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (...'
@@ -133,10 +138,6 @@
     In [2]: public_lib.check_symbols('..')
     Out[2]: symbols(status=False, symbols='..')
 
-#### 1.1.8　网络ping
-    In [3]: public_lib.ping(ip='www.lssin.com')
-    Out[3]: ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
-
 #### 1.1.9　检查2个文件内容是否一致
     In [2]: public_lib.file_diff('/tmp/1','/tmp/2')
     Out[2]: False
@@ -148,7 +149,7 @@
 #### 1.2.1　获取系统所有ip
     In [2]: public_lib.host_ip()
     Out[2]:[{'eth0': '172.16.1.255'}, {'wlan0'
-    
+        
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(
