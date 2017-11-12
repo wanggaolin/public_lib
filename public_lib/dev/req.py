@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #encoding=utf-8
 #Created by gaolin on 2017-06-06 16:03
-
+import copy
 import re
 import sys
+import json
 import traceback
 from error_msg import RaiseVlues
 from dev_lib import check_ip
@@ -73,14 +74,24 @@ def check_symbols(x,re_rule=False):
     :return:
     """
     F = namedtuple('symbols', ['status', "symbols"])
-    if re_rule is False:
-        re_rule = re.compile(r'\*|%|\.\.')
-    end = re.findall(re_rule,x)
-    if end:
-        end = F(False, ' '.join(end))
+    if x:
+        if re_rule is False:
+            re_rule = re.compile(r'\*|\.\.|\\')
+        end = re.findall(re_rule,x)
+        if end:
+            end = F(False, ' '.join(end))
+        else:
+            end = F(True, '')
     else:
-        end = F(True, '')
+        end = F(False,'')
     return end
+
+def check_mac(mac_name):
+    if mac_name:
+        if re.findall(r'^(?:[a-zA-Z0-9][a-zA-Z0-9]\:){5}[a-zA-Z0-9][a-zA-Z0-9]$',mac_name):
+            return True
+    return False
+
 
 class check_req(object):
     'check argument `data={}`'
@@ -90,7 +101,8 @@ class check_req(object):
              :data: check data argument,type is dict
         """
         self.data = kwargs['data']
-        self.error = {'status':False,'data':self.data,'msg':'success'}
+        self.verfy = copy.deepcopy(self.data)
+        self.error = {'status':False,'data':{},'msg':'success'}
 
     def _number(self,data):#判断是否是数字
         'check data is number'
@@ -115,24 +127,49 @@ class check_req(object):
         return status
 
     def _time_day(self,data):
-        'check data is time [2017-06-06|2017/06/06]'
+        'check data is time [2017-06-06]'
         status = False
-        time_1 = re.findall('\d{4}-\d{2}-\d{2}',data)
-        if time_1:
-            if time_1[0] == data:
-                day1 = re.findall('\d{4}-(\d{2})-(\d{2})',data)
-                status = self._mon_or_day_ok(day1[0])
-        time_2 = re.findall('\d{4}/\d{2}/\d{2}', data)
-        if time_2:
-            if time_2[0] == data:
-                day2 = re.findall('\d{4}/(\d{2})/(\d{2})',data)
-                status = self._mon_or_day_ok(day2[0])
+        if re.findall('^\d{4}-\d{1,2}-\d{1,2}$',data):
+            day1 = re.findall('\d{4}-(\d{1,2})-(\d{1,2})',data)
+            status = self._mon_or_day_ok(day1[0])
         return status
 
-    def _error(self,default_error,msg_error):
-        if default_error:
-            return default_error
-        return msg_error
+    def _time_day_1(self,data):
+        'check data is time [2017/06/06]'
+        status = False
+        if re.findall('^\d{4}/\d{1,2}/\d{1,2}$', data):
+            day2 = re.findall('^\d{4}/(\d{1,2})/(\d{1,2})',data)
+            status = self._mon_or_day_ok(day2[0])
+        return status
+
+    def _time_1(self,data):
+        'check data is time [2009-06-23 12:12:12]'
+        status = False
+        print data,123
+        if re.findall('^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$',data):
+            day1 = re.findall('^\d{4}-(\d{1,2})-(\d{1,2})',data)
+            status = self._mon_or_day_ok(day1[0])
+        return status
+
+    def _time_2(self,data):
+        'check data is time [2009-06-23 12:12:12]'
+        status = False
+        if re.findall('^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}$',data):
+            day1 = re.findall('^\d{4}-(\d{1,2})-(\d{1,2})',data)
+            status = self._mon_or_day_ok(day1[0])
+        return status
+
+    # def _error(self,default_error,key_name,msg_error):
+    def _error(self,**kwargs):
+        errors_msg = kwargs['default'].get(kwargs['key_name'])
+        msg = kwargs['msg']
+        try:
+            del self.verfy[kwargs['key_role']]
+        except KeyError,e:
+            pass
+        if errors_msg:
+            return errors_msg
+        return msg
 
     def rule(self,*args,**kwargs):
         """
@@ -142,7 +179,10 @@ class check_req(object):
             :rule:
                 number:True     必须是数字[小数点/整数/负数]
                 number_str:True 只能输入字母或数字
-                time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23/1998/01/22。只验证格式，不验证有效性。
+                time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
+                time_day_1:true	必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
+                times_1:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
+                times_2:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
                 minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
                 maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
                 rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
@@ -153,8 +193,11 @@ class check_req(object):
                 bank:True	    必须是一个银行卡号
                 card:True	    必须是一个身份证号
                 ip:True	        必须是一个合法ip地址
+                mac:True	    必须是一个合法mac地址
                 mobile:True	    必须是一个手机号码
-                symbols:Ture    不得包含特殊符号:*,%
+                symbols:Ture    不得包含特殊符号:*,%,..,\
+                json_load:Ture  必须是一个json可解析的格式
+                domain:Ture     必须是一个域名
         :return: {}
         """
         try:
@@ -172,26 +215,26 @@ class check_req(object):
                     if rule_value.get('number') is True: #判断values是否是数字
                         if self._number(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['number'][language_name])
-                            self.error['msg'] = self._error(default_error.get('number'),error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number',msg=error_message)
 
                     if rule_value.get('minlength'): #判断values 位数是否小于n
                         minlength = rule_value.get('minlength')
                         if len_end < minlength:
                             error_message = "%s%s" % (name_alias,alarm_language['minlength'][language_name].replace('{number}',str(minlength)))
-                            self.error['msg'] = self._error(default_error.get('minlength'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='minlength',msg=error_message)
 
                     if rule_value.get('maxlength'): #判断values 位数是否大于n
                         maxlength = rule_value.get('maxlength')
                         if len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['maxlength'][language_name].replace('{number}',str(maxlength)))
-                            self.error['msg'] = self._error(default_error.get('maxlength'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='maxlength',msg=error_message)
 
                     if rule_value.get('rangelength'):  # 判断values 位数是在x和y之间
                         rangelength = rule_value.get('rangelength')
                         minlength,maxlength = rangelength
                         if minlength > len_end or len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['rangelength'][language_name].replace('{number1}', str(minlength)).replace('{number2}', str(maxlength)))
-                            self.error['msg'] = self._error(default_error.get('rangelength'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='rangelength',msg=error_message)
 
                     if rule_value.get('max'):  # 判断values 是否大于n
                         number_max = rule_value.get('max')
@@ -199,10 +242,10 @@ class check_req(object):
                             end = int(end)
                             if number_max < end:
                                 error_message = "%s%s" % (name_alias,alarm_language['max'][language_name].replace('{number}',number_max))
-                                self.error['msg'] = self._error(default_error.get('max'), error_message)
+                                self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='max',msg=error_message)
                         except ValueError,e:
                             error_message = "%s%s" % (name_alias,alarm_language['max'][language_name].replace('{number}',str(number_max)))
-                            self.error['msg'] = self._error(default_error.get('max'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='max',msg=error_message)
 
                     if rule_value.get('min'):  # 判断values 是否小于n
                         number_mix = rule_value.get('min')
@@ -210,94 +253,127 @@ class check_req(object):
                             end = int(end)
                             if number_mix > end:
                                 error_message = "%s%s" % (name_alias,alarm_language['min'][language_name].replace('{number}',str(number_mix)))
-                                self.error['msg'] = self._error(default_error.get('min'), error_message)
+                                self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='min',msg=error_message)
                         except ValueError, e:
                             error_message = "%s%s" % (name_alias, alarm_language['min'][language_name].replace('{number}',str(number_mix)))
-                            self.error['msg'] = self._error(default_error.get('min'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='min',msg=error_message)
 
                     if rule_value.get('number_str') is True:  # 判断values 是否是数字或字母
                         if self._number_or_str(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['number_str'][language_name])
-                            self.error['msg'] = self._error(default_error.get('number_str'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_str',msg=error_message)
 
                     if rule_value.get('time_day') is True:
                         time_day = rule_value.get('time_day')
                         if self._time_day(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['time_day'][language_name])
-                            self.error['msg'] = self._error(default_error.get('time_day'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='time_day',msg=error_message)
+
+                    if rule_value.get('time_day_1') is True:
+                        time_day = rule_value.get('time_day_1')
+                        if self._time_day_1(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['time_day_1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='time_day',msg=error_message)
+
+                    if rule_value.get('times_1') is True:
+                        time_day = rule_value.get('times_1')
+                        if self._time_1(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['times_1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='times_1',msg=error_message)
+
+                    if rule_value.get('times_2') is True:
+                        time_day = rule_value.get('times_2')
+                        if self._time_2(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['times_2'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='times_2',msg=error_message)
 
                     if rule_value.get('file') is True:
                         if re.findall('\.\.',end):
-                            error_message = "%s%s.." % (name_alias,alarm_language['file'][language_name])
-                            self.error['msg'] = self._error(default_error.get('file'), error_message)
+                            error_message = "%s%s: .." % (name_alias,alarm_language['file'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file',msg=error_message)
                         elif re.findall('\./', end):
-                            error_message = "%s%s./" % (name_alias,alarm_language['file'][language_name])
-                            self.error['msg'] = self._error(default_error.get('file'), error_message)
+                            error_message = "%s%s: ./" % (name_alias,alarm_language['file'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file',msg=error_message)
                         elif re.findall('\*', end):
                             error_message = "%s%s*" % (name_alias,alarm_language['file'][language_name])
-                            self.error['msg'] = self._error(default_error.get('file'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file',msg=error_message)
                         elif re.findall(' ', end):
-                            error_message = "%s%s空格" % (name_alias,alarm_language['file'][language_name])
-                            self.error['msg'] = self._error(default_error.get('file'), error_message)
+                            error_message = "%s%s: ' '" % (name_alias,alarm_language['file'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file',msg=error_message)
+                        elif not re.findall('/', end):
+                            error_message = "%s%s: '/'" % (name_alias, alarm_language['file1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file1',msg=error_message)
 
                     if rule_value.get('email') is True:
-                        if not re.findall(r'^[\w|-|_]+@[\w|-|_]+\.(?:com|cn|xin|top|site|net|cc|org|tv|\.)+$',end):
+                        if not re.findall(r'^[\w|-|_|\.]+@[\w|-|_]+\.(?:com|cn|xin|top|site|net|cc|org|tv|\.)+$',end):
                             error_message = "%s%s" % (name_alias,alarm_language['email'][language_name])
-                            self.error['msg'] = self._error(default_error.get('email'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='email',msg=error_message)
 
                     if rule_value.get('bank') is True:
                         if check_bank(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['bank'][language_name])
-                            self.error['msg'] = self._error(default_error.get('bank'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='bank',msg=error_message)
 
                     if rule_value.get('card') is True:
                         if check_card(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['card'][language_name])
-                            self.error['msg'] = self._error(default_error.get('card'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='card',msg=error_message)
 
                     if rule_value.get('ip') is True:
                         if check_ip(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['ip'][language_name])
-                            self.error['msg'] = self._error(default_error.get('ip'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='ip',msg=error_message)
+
+                    if rule_value.get('mac') is True:
+                        if check_mac(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['mac'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='mac',msg=error_message)
 
                     if rule_value.get('mobile') is True:
                         if check_mobile(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['mobile'][language_name])
-                            self.error['msg'] = self._error(default_error.get('mobile'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='mobile',msg=error_message)
 
                     if rule_value.get('symbols') is True:
                         end = check_symbols(end)
                         if end.status is False:
                             error_message = "%s%s:%s" % (name_alias, alarm_language['symbols'][language_name],end.symbols)
-                            self.error['msg'] = self._error(default_error.get('symbols'), error_message)
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='symbols',msg=error_message)
 
-                    if self.error['msg'] != 'success':
-                        return self.error
+                    if rule_value.get('json_load') is True:
+                        try:
+                            json.loads(end)
+                        except Exception,e:
+                            error_message = "%s %s" % (name_alias, alarm_language['json_load'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='json_load',msg=error_message)
+
+                    if rule_value.get('domain') is True:
+                        if not re.findall(r'^[\w|\d|-]+\.[\w|\d|-|\.]{0,}[\w|\d]+$',end):
+                            error_message = "%s%s" % (name_alias, alarm_language['domain'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='domain',msg=error_message)
                 else:
+                    try:
+                        del self.verfy[rule_name]
+                    except KeyError,e:
+                        pass
                     self.error['msg'] = "%s%s" % (name_alias, alarm_language['default'][language_name])
-                    return self.error
+                    self.error['data'] = self.verfy
         except Exception,e:
             # raise RaiseVlues(e)
             raise RaiseVlues(traceback.format_exc())
-        self.error['status'] = True
+        if self.error['msg'] == 'success':
+            self.error['status'] = True
+        self.error['data'] = self.verfy
         return self.error
+
+# print check_mac('b8:70:f4:1d:fc:61')
 #
 #
 # import public_lib
+# f = {'aaa': 'b8:70:f4:1d:fc:61'}
 # for i in ['zh']:
-#     print public_lib.json_data(check_req(data=
-#               {
-#                   "a":'asdasdasds123asd.'
-#               }).rule(language=i,rule={
-#                 "a":{
-#                     "alias": "手机号",  # 别名
-#                     "min":3,
-#                     "error":{
-#                         "min1":"haasdha"
-#                     }
-#
-#                  }
-#     }))
-
-
-
+#     print public_lib.json_data(check_req(data=f).rule(language=i,rule={
+#         "aaa": {
+#             "alias": "结束日期",
+#             "mac": True,
+#         }}))

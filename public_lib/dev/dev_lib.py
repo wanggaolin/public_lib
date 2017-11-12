@@ -69,7 +69,7 @@ def json_data(x,indent=4):
         try:
             if type(x) is str:
                 x = json.loads(x)
-            x = json.dumps(x,indent=indent,ensure_ascii=False)
+            x = json.dumps(x, indent=indent, ensure_ascii=False)
         except Exception,e:
             _system_logs("jsondata error, data:%s error:%s" % x,e)
             pass
@@ -321,7 +321,14 @@ def host_name():
 
 def host_ip():
     'get system ip'
-    return [ {i[0]:i[1]}
-       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether \S+ brd \S+\n\s+inet (\S+)/\d+ brd \S+ ',commands.getoutput("ip addr")))
+    return [ {i[0]:[i[2],i[1]]}
+       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether (\S+) brd \S+\n\s+inet (\S+)/\d+ brd \S+ ',commands.getoutput("ip addr")))
     ]
 
+def set_list(data=[]):
+    'get repeat index'
+    x = []
+    for i in set(data):
+        if data.count(i) > 1:
+            x.append(i)
+    return x

@@ -38,9 +38,25 @@ alarm_language = {
         "zh": "必须是正确格式的日期",
         "en": "must be the correct format of the date"
     },
+    "time_day_1": {
+        "zh": "必须是正确格式的日期",
+        "en": "must be the correct format of the date"
+    },
+    "times_1": {
+        "zh": "必须是正确格式的日期",
+        "en": "must be the correct format of the time"
+    },
+    "times_2": {
+        "zh": "必须是正确格式的日期",
+        "en": "must be the correct format of the time"
+    },
     "file": {
         "zh": "不得包含",
         "en": "Shall not contain"
+    },
+    "file1": {
+        "zh": "必须包含",
+        "en": "must be inclued"
     },
     "email": {
         "zh": "必须是一个邮箱",
@@ -58,6 +74,10 @@ alarm_language = {
         "zh": "必须是一个ip地址",
         "en": "must be an IP address"
     },
+    "mac": {
+        "zh": "必须是一个mac地址",
+        "en": "must be an mac address"
+    },
     "mobile": {
         "zh": "必须是一个手机号",
         "en": "it must be a cell phone number"
@@ -66,5 +86,13 @@ alarm_language = {
         "zh": "不得包含特殊符号",
         "en": "cannot include special symbols"
     },
+    "json_load":{
+        "zh": "必须是一个json格式",
+        "en": "must be a json format"
+    },
+    "domain":{
+        "zh": "必须是一个域名",
+        "en": "must be a domain"
+    }
 }
 

@@ -149,7 +149,11 @@
 #### 1.2.1　获取系统所有ip
     In [2]: public_lib.host_ip()
     Out[2]:[{'eth0': '172.16.1.255'}, {'wlan0'
-        
+
+#### 1.2.1　获取list重复元素
+    In [2]: public_lib.set_list([1,2,2,2])
+    Out[2]: [2]
+
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(

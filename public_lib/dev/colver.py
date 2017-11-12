@@ -48,3 +48,4 @@ def color(x,name='red',number=False):
     else:
         return _color().red(x, name)
 
+
