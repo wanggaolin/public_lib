@@ -55,7 +55,10 @@
     #rule规则列表
         number:True     必须是数字[小数点/整数/负数]
         number_str:True 只能输入字母或数字
-        time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23/1998/01/22。只验证格式，不验证有效性。
+        time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
+        time_day_1:true	必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
+        times_1:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
+        times_2:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
         minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
         maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
         rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
@@ -66,8 +69,11 @@
         bank:True	    必须是一个银行卡号
         card:True	    必须是一个身份证号
         ip:True	        必须是一个合法ip地址
+        mac:True	    必须是一个合法mac地址
         mobile:True	    必须是一个手机号码
-        symbols:Ture    不得包含特殊符号:*,%
+        symbols:Ture    不得包含特殊符号:*,%,..,\
+        json_load:Ture  必须是一个json可解析的格式
+        domain:Ture     必须是一个域名
 	
     #用法
         #rule:检查规则
@@ -154,6 +160,22 @@
     In [2]: public_lib.set_list([1,2,2,2])
     Out[2]: [2]
 
+#### 1.2.2　获取网卡mac地址
+    In [2]: network_mac('eth0')
+    Out[2]: b8:70:f4:1d:fc:61
+
+#### 1.2.3　字典根据key去重
+    In [2]: set_dict(data={'a':1,'b':2},key=['b'])
+    Out[2]: {'a': 1}
+
+#### 1.2.4　缓冲数据到文件
+    In [2]: @cache_file(time=5,file='/tmp/.zabbix.cpu.every.cache')
+
+#### 1.2.5　弹出自定义error
+    In [2]: raise RaiseVlues('xxx')
+
+
+
 ## 2邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(
@@ -195,4 +217,29 @@
 ## 4日志模块
 #### 4.0.1 记录日志到系统日志中[/var/log/message]
     public_lib.syslog.error("test log")  
-        
+
+## 5 excel模块
+#### 5.0.1 将数据写入exlce中
+    f = {
+        'menu': [['name', '姓名', {'msg': '姓名', 'w': 16}],['number', '电话', {'msg': '电话', 'w': 6}]],
+        'data': [
+            {"name":"王高林","number":"1"},
+            {"name":"王高林1"},
+        ],
+        'title': '学生登记表'
+    }
+    print public_lib.excel_write(**f).save('/tmp/1.xlsx')
+
+#### 5.0.1 读取exlce数据
+    menu = [['name','姓名'],['number','电话'],['id','班级']]
+    d 6 public_lib.excel_read(menu=menu)
+    d.x = 3
+    d.y = 7
+    print public_lib.json_data(d.file(file_path='/data/temp/download/资产主机.xlsx'))
+
+## 6xmind 模块
+#### 6.0.1 将xmind txt 数据导入到excel中
+    F = public_lib.xmind(file='/home/gaolin/Desktop/安全防护.txt')
+    print F.save_excel('/tmp/1.xlsx')
+
+
