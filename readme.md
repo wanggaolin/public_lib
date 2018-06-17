@@ -1,5 +1,9 @@
 ### python 公共方法库,方便使用
-#### install    
+#### install
+    #centos:
+        yum install rrdtool-devel
+    #ubuntu:
+        apt-get install librrd-dev
     cd /usr/local/src && git clone https://github.com/wanggaolin/public_lib.git && \
     cd public_lib && python setup.py install || cd public_lib/ && git pull && python setup.py  install
 
@@ -174,6 +178,14 @@
 #### 1.2.5　弹出自定义error
     In [2]: raise RaiseVlues('xxx')
 
+#### 1.2.6　html转text
+    In [2]: public_lib.html_to_text("<p>没有分寸<br/>感</p>")
+    Out[2]: HtmlToText(status=True, text=u'\u6ca1\u6709\u5206\u5bf8 \u611f ', error='')
+
+#### 1.2.7　text转html
+    In [2]: public_lib.text_to_html("""12 4""")
+    Out[2]: TextToHtml(status=True, text="<!DO...../html>", error='')
+
 
 
 ## 2邮箱模块
@@ -242,4 +254,18 @@
     F = public_lib.xmind(file='/home/gaolin/Desktop/安全防护.txt')
     print F.save_excel('/tmp/1.xlsx')
 
-
+## 7rrdtool 模块
+#### 7.0.1 根据传递的参数绘制图表
+    F = public_lib.rrd()
+    F.interval = 5
+    F.units = 'G'
+    F.y_desc = 'xxxxx'
+    F.title = '测试图表'
+    F.img = '1.png'
+    l = {
+        'time': ['1529206065', '1529206070', '1529206075', '1529206080', '1529206085'],
+        'lable': [{'type': 'AREA', 'name': 'w1'}, {'name': 'w2'}],
+        'w2': [81, 79, 60, 80, 78],
+        'w1': [3, 24, 59, 11, 11]
+    }
+    print F.load(l)
