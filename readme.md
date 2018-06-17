@@ -269,4 +269,4 @@
         'w1': [3, 24, 59, 11, 11]
     }
     print F.load(l)
-    ![demo:](https://github.com/wanggaolin/public_lib/blob/master/public_lib/img/1.png)
+    # ![demo] (https://github.com/wanggaolin/public_lib/blob/master/public_lib/img/1.png)
