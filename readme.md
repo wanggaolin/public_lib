@@ -255,7 +255,7 @@
     print F.save_excel('/tmp/1.xlsx')
 
 ## 7rrdtool 模块
-#### 7.0.1 根据传递的参数绘制图表
+#### 7.0.1 ![根据传递的参数绘制图表](https://github.com/wanggaolin/public_lib/blob/master/public_lib/img/1.png)
     F = public_lib.rrd()
     F.interval = 5
     F.units = 'G'
