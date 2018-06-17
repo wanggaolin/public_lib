@@ -269,5 +269,4 @@
         'w1': [3, 24, 59, 11, 11]
     }
     print F.load(l)
-![demo images](https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png)
-<div align=center><img width="650" height="300" src="https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png"/></div>
+<div align=center><img width="450" height="200" src="https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png"/></div>
