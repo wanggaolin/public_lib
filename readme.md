@@ -270,3 +270,4 @@
     }
     print F.load(l)
 ![demo images](https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png)
+<div align=center><img width="650" height="300" src="https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png"/></div>
