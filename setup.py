@@ -14,5 +14,6 @@ setuptools.setup(
     keywords = ['public','lib'],
     install_requires = [
         'psutil',
+        'rrdtool'
     ]
 )

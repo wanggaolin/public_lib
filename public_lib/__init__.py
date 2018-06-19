@@ -15,5 +15,8 @@ from dev.microst_xlsx import ExportHander as excel_write
 from zabbix.api_2 import _zabbix as zabbix2
 from zabbix.api_3 import _zabbix as zabbix3
 from dev.xmind import xmind
+from dev.Html import HTmltoText as html_to_text
+from dev.Html import TextToHtml as text_to_html
+from dev.rras import rrd
 
 
