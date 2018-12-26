@@ -21,12 +21,12 @@ def __network(nework_name):
 
 def network_send(nework_name='eth0'):
     'show network send data size,units:Mbps'
-    return float(__network(nework_name).bytes_sent)/1024/1024/1024*8
+    return float(__network(nework_name).bytes_sent)/1024/1024*8
 
 
 def network_recv(nework_name='eth0'):
     'show network send data size,units:Mbps'
-    return float(__network(nework_name).bytes_recv)/1024/1024/1024*8
+    return float(__network(nework_name).bytes_recv)/1024/1024*8
 
 
 def fdisk_info(fdisk_name):

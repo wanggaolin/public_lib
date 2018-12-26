@@ -35,7 +35,7 @@ def check_card(card_number):
         map(int,str(id_number)[:-1])
     except ValueError,e:
         return False
-    if 1800 < int(id_number[6:10]) < 2100:
+    if 1800 < int(id_number[6:10]) < 2100 and len(id_number) ==18:
         if int(id_number[10:12]) < 13 and int(id_number[12:14]) < 32:
             ratio = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
             corres = {'0': 1, '1': 0, '2': 'x', '3': 9, '4': 8, '5': 7, '6': 6, '7': 5, '8': 4, '9': 3, '10': 2}
@@ -83,7 +83,7 @@ def check_symbols(x,re_rule=False):
         else:
             end = F(True, '')
     else:
-        end = F(False,'')
+        end = F(True,'')
     return end
 
 def check_mac(mac_name):
@@ -145,7 +145,6 @@ class check_req(object):
     def _time_1(self,data):
         'check data is time [2009-06-23 12:12:12]'
         status = False
-        print data,123
         if re.findall('^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$',data):
             day1 = re.findall('^\d{4}-(\d{1,2})-(\d{1,2})',data)
             status = self._mon_or_day_ok(day1[0])
@@ -198,45 +197,55 @@ class check_req(object):
                 symbols:Ture    不得包含特殊符号:*,%,..,\
                 json_load:Ture  必须是一个json可解析的格式
                 domain:Ture     必须是一个域名
+                url:Ture        必须是一个网站链接
+                list:['a','b']  参数必须是a或b
+                type_list:Ture  参数类型必须是list
+                type_dict:Ture  参数类型必须是dict
+                member_list:[a,b,c] 参数必须是一个list,同步，每个list元素必须在a,b,c其中一个或多个
+
         :return: {}
         """
         try:
             language_name = kwargs.get('language','zh')
             for rule_name,rule_value in  kwargs['rule'].items(): #遍历所有规则
-                end = self.data.get(rule_name) #判断某个字段是非启用过滤规则
+                end = self.data.get(rule_name,False) #判断某个字段是非启用过滤规则
+                end_type = type(end)
                 name_alias = rule_value.get('alias', '')
                 default_error = rule_value.get('error', {})
                 if not name_alias:
                     import warnings
                     warnings.warn("must be key of alias")
-                if end:
-                    end = unicode(str(end), "utf-8")
+                if end != False:
+                    if end_type is list or end_type is dict:
+                        pass
+                    else:
+                        end = unicode(str(end), "utf-8")
                     len_end = len(end)
                     if rule_value.get('number') is True: #判断values是否是数字
                         if self._number(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['number'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number',msg=error_message)
 
-                    if rule_value.get('minlength'): #判断values 位数是否小于n
+                    if rule_value.get('minlength',False) != False: #判断values 位数是否小于n
                         minlength = rule_value.get('minlength')
                         if len_end < minlength:
                             error_message = "%s%s" % (name_alias,alarm_language['minlength'][language_name].replace('{number}',str(minlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='minlength',msg=error_message)
 
-                    if rule_value.get('maxlength'): #判断values 位数是否大于n
+                    if rule_value.get('maxlength',False) != False: #判断values 位数是否大于n
                         maxlength = rule_value.get('maxlength')
                         if len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['maxlength'][language_name].replace('{number}',str(maxlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='maxlength',msg=error_message)
 
-                    if rule_value.get('rangelength'):  # 判断values 位数是在x和y之间
+                    if rule_value.get('rangelength',False) != False:  # 判断values 位数是在x和y之间
                         rangelength = rule_value.get('rangelength')
                         minlength,maxlength = rangelength
                         if minlength > len_end or len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['rangelength'][language_name].replace('{number1}', str(minlength)).replace('{number2}', str(maxlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='rangelength',msg=error_message)
 
-                    if rule_value.get('max'):  # 判断values 是否大于n
+                    if rule_value.get('max',False) != False:  # 判断values 是否大于n
                         number_max = rule_value.get('max')
                         try:
                             end = int(end)
@@ -247,7 +256,7 @@ class check_req(object):
                             error_message = "%s%s" % (name_alias,alarm_language['max'][language_name].replace('{number}',str(number_max)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='max',msg=error_message)
 
-                    if rule_value.get('min'):  # 判断values 是否小于n
+                    if rule_value.get('min',False) != False:  # 判断values 是否小于n
                         number_mix = rule_value.get('min')
                         try:
                             end = int(end)
@@ -351,6 +360,36 @@ class check_req(object):
                         if not re.findall(r'^[\w|\d|-]+\.[\w|\d|-|\.]{0,}[\w|\d]+$',end):
                             error_message = "%s%s" % (name_alias, alarm_language['domain'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='domain',msg=error_message)
+
+                    if rule_value.get('url') is True:
+                        if not re.findall(r'^(http|https)://[\w|\d|-]+\.[\w|\d|-|\.]{0,}[\w|\d]+\S+$',str(end)):
+                            error_message = "%s%s" % (name_alias, alarm_language['url'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='url',msg=error_message)
+
+                    if type(rule_value.get('list')) is list:
+                        if not end in rule_value.get('list'):
+                            error_message = "%s%s" % (name_alias, alarm_language['list'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='list',msg=error_message)
+                    if rule_value.get('type_list') is True:
+                        if not end_type is list:
+                            error_message = "%s%s" % (name_alias, alarm_language['type_list'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='type_list',msg=error_message)
+                    if rule_value.get('type_dict') is True:
+                        if not end_type is dict:
+                            error_message = "%s%s" % (name_alias, alarm_language['type_dict'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='type_dict',msg=error_message)
+                    if type(rule_value.get('member_list')) is list:
+                        if end_type is list:
+                            _l = rule_value.get('member_list')
+                            for _data in end:
+                                if not _data in _l:
+                                    error_message = "%s%s" % (name_alias, alarm_language['member_list'][language_name].replace("{number1}",_data))
+                                    self.error['msg'] = self._error(key_role=rule_name, default=default_error,key_name='member_list', msg=error_message)
+                        else:
+                            error_message = "%s%s" % (name_alias, alarm_language['type_list'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='type_list',msg=error_message)
+
+
                 else:
                     try:
                         del self.verfy[rule_name]
@@ -366,14 +405,17 @@ class check_req(object):
         self.error['data'] = self.verfy
         return self.error
 
+if __name__ == "__main__":
+    check_bank('123')
+
 # print check_mac('b8:70:f4:1d:fc:61')
 #
 #
 # import public_lib
-# f = {'aaa': 'b8:70:f4:1d:fc:61'}
+# f = {'aaa': ["a2","b"]}
 # for i in ['zh']:
 #     print public_lib.json_data(check_req(data=f).rule(language=i,rule={
 #         "aaa": {
-#             "alias": "结束日期",
-#             "mac": True,
-#         }}))
+#             "alias":"xxx",
+#             "member_list": ["a","b"],
+#     }}))

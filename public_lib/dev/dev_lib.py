@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 #encoding=utf-8
 import hashlib
+import traceback
 import random
+import copy
+import fcntl
+import struct
 import os
 import time
 import re
@@ -14,6 +18,7 @@ import hashlib
 from syslog_log import _system_logs
 from http_agent import  agent_list
 from collections import namedtuple
+from error_msg import RaiseVlues
 from termin import Terminal
 
 def _read(file_path):
@@ -36,12 +41,16 @@ def code_try(*args,**kwargs):
     def decorator(func):
         def wrapper(*args, **kw):
             number = kwargs['number']
+            error_message = ""
             for i in range(number):
-                end = func(*args, **kw)
-                if end:
-                    return end
+                try:
+                    end = func(*args, **kw)
+                    if end:
+                        return end
+                except Exception,e:
+                    error_message = str(traceback.format_exc())
                 if kwargs.get('debug',True) is True:
-                    print "run function:%s try:%s" % (func.func_name,i)
+                    print "run function:%s try:%s error:%s" % (func.func_name,i,error_message)
                 time.sleep(kwargs.get('sleep',0))
             return False
         return wrapper
@@ -184,8 +193,10 @@ def check_ip_private(ip=None):
     :return:bool
     """
     if check_ip(ip):
-        end = re.findall(r'^10\.|^172\.16\.|^192\.168\.', ip)
+        end = re.search(r'^10\.|^172\.16\.|^192\.168\.', ip)
         if end:
+            return True
+        elif 16 < int(ip.split(".")[1]) < 32:
             return True
     return False
 
@@ -322,7 +333,7 @@ def host_name():
 def host_ip():
     'get system ip'
     return [ {i[0]:[i[2],i[1]]}
-       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether (\S+) brd \S+\n\s+inet (\S+)/\d+ brd \S+ ',commands.getoutput("ip addr")))
+       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether (\S+) brd \S+\n\s+inet (\S+)/\d+ \S+ ',commands.getoutput("ip addr")))
     ]
 
 def set_list(data=[]):
@@ -332,3 +343,103 @@ def set_list(data=[]):
         if data.count(i) > 1:
             x.append(i)
     return x
+
+def network_mac(interface):
+    """
+    with ipaddres get mac
+    :param interface:
+    :return:
+    """
+    DEVICE_NAME_LEN = 15
+    MAC_START = 18
+    MAC_END = 24
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    info = fcntl.ioctl(s.fileno(), 0x8927,
+                       struct.pack('256s', interface[:DEVICE_NAME_LEN]))
+    return ''.join(['%02x:' % ord(char)
+                    for char in info[MAC_START:MAC_END]])[:-1]
+
+
+def set_dict(**kwargs):
+    """
+    set dict
+    :param kwargs:
+        :data: data dict
+        :key:set key list
+    :return: {}
+    """
+    new_dict = {}
+    data = kwargs['data']
+    _key = kwargs['key']
+    for i in data.keys():
+        if i in _key:
+            continue
+        new_dict[i]=data[i]
+    return new_dict
+
+def cache_file(*arg,**kwa):
+    """
+    cache data to file
+    :param kwargs:
+        :time: cache data time,unit:second
+        :file: save data of file path
+        :actuall_file: save data of file path
+    :return: str
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            cache_time = kwa['time']
+            file_path = kwa.get('file', False)
+            if not file_path:
+                if kwargs.get('actuall_file',False) is False:
+                    raise RaiseVlues('file_path not must be null')
+                else:
+                    file_path = kwargs['actuall_file']
+            if os.path.exists(file_path):
+                if (time.time() - os.stat(file_path).st_mtime) < cache_time:
+                    with open(file_path) as P:
+                        try:
+                            return json.loads(P.read())
+                        except ValueError, e:
+                            pass
+            file_lock = open(file_path + '_lock', "w+")
+            fcntl.flock(file_lock.fileno(), fcntl.LOCK_EX)
+            data = func(*args, **kwargs)
+            with open(file_path, r'w+') as P:
+                P.write(json.dumps(data))
+            file_lock.close()
+            return data
+        return wrapper
+    return decorator
+
+class cache:
+    def __init__(self,**kwargs):
+        self.file_path = kwargs.get("file","/tmp/."+str(int(time.time()*10000)))
+        self.file_lock = self.file_path+'.lock'
+
+    @code_try(number=3,sleep=1,debug=False)
+    def _save(self,data,type=None):
+        file_lock = open(self.file_lock + '_lock', "w+")
+        fcntl.flock(file_lock.fileno(), fcntl.LOCK_EX)
+        with open(self.file_path, r'w+') as P:
+            P.write(json.dumps({"data":data,"time":CurrTime()}))
+        file_lock.close()
+        return True
+
+    def save(self,data,type=None):
+        return self._save(data,type=None)
+
+    def get(self,data_value=False):
+        try:
+            if os.path.exists(self.file_path):
+                with open(self.file_path) as P:
+                    return json.loads(P.read())["data"]
+        except ValueError,e:
+            pass
+        return data_value
+
+
+
+
+if __name__ == "__main__":
+    print check_ip_private("172.20.28.241")

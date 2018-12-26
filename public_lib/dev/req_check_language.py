@@ -93,6 +93,26 @@ alarm_language = {
     "domain":{
         "zh": "必须是一个域名",
         "en": "must be a domain"
-    }
+    },
+    "url": {
+        "zh": "必须是一个url",
+        "en": "must be a http url"
+    },
+    "list": {
+        "zh": "是一个无效的参数",
+        "en": "is invalid argument"
+    },
+    "type_list": {
+        "zh": "参数类型必须是list",
+        "en": "data type must is list"
+    },
+    "type_dict": {
+        "zh": "参数类型必须是dict",
+        "en": "data type must is dict"
+    },
+    "member_list": {
+        "zh": "{number1} 数据不合法",
+        "en": "{number1} is invalid data on index"
+    },
 }
 
