@@ -120,11 +120,68 @@ def CurrTime():
     """
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 
+def CurrTime1():
+    """
+    :return: 2017-12-12 12:12
+    """
+    return time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))
+
 def CurrDay():
     """
     :return: 2017-12-12
     """
     return time.strftime('%Y-%m-%d',time.localtime(time.time()))
+
+
+
+#unix时间转北京时间
+def time_to_utf8(t):
+    return time.strftime('%Y-%m-%d %H:%M', (time.localtime(t)))
+
+def time_to_utf81(t):
+    return time.strftime('%m-%d %H:%M', (time.localtime(t)))
+
+
+def time_unix_format_bj(t):
+    """
+    :param t: 2021-06-03 17:08
+    :return:
+    """
+    return time.strftime('%Y-%m-%d %H:%M:%S', (time.localtime(t)))
+
+def time_bj_foramt_unix1(t):
+    """
+    :param t: 1622711491
+    :return:
+    """
+    return time.mktime((datetime.datetime.strptime(t,"%Y-%m-%d %H:%M")).timetuple())
+
+def time_bj_foramt_unix2(t):
+    """
+    :param t: 1622711491
+    :return:
+    """
+    return time.mktime((datetime.datetime.strptime(t,"%Y-%m-%d %H:%M:%S")).timetuple())
+
+# 北京时间转unix时间
+def time_bj_foramt_unix3(t):
+    """
+    :param t: 1622711491
+    :return:
+    """
+    return time.mktime((datetime.datetime.strptime(t,"%Y-%m-%d")).timetuple())
+
+def time_utc_format_bj1(t):
+    bj_time = datetime.datetime.strptime(time.strftime('%Y-%m-%d %H:%M', t.timetuple()), '%Y-%m-%d %H:%M') + datetime.timedelta(hours=8)
+    return bj_time.strftime("%Y-%m-%d %H:%M")
+
+def time_utc_format_bj2(t):
+    """
+    :param t: 2017-04-13T20:09:33Z
+    :return:
+    """
+    bj_time = datetime.datetime.strptime(time.strftime('%Y-%m-%d', t.timetuple()), '%Y-%m-%d') + datetime.timedelta(hours=8)
+    return bj_time.strftime("%Y-%m-%d")
 
 
 def dir_name(x):
@@ -535,6 +592,46 @@ def text_column(**kwargs):
         p.append("".join(txt))
     return "\n".join(p)
 
+
+def ip_format_int( x):
+    if x == 'localhost':
+        return 11
+    else:
+        return int(socket.ntohl(struct.unpack("I", socket.inet_aton(x))[0]))
+
+def ip_format_str(dec_value):
+    ip = ''
+    t = 2 ** 8
+    dec_value = int(dec_value)
+    for _ in range(4):
+        v = dec_value % t
+        ip = '.' + str(v) + ip
+        dec_value = dec_value // t
+    ip = ip[1:]
+    return ip
+
+
+def process_lock(*args,**kwargs):
+    def decorator(func):
+        def wrapper(*args, **kw):
+            try:
+                file_lock = open(kwargs["pid"] + '.lock', "a+")
+                fcntl.flock(file_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return func(*args, **kw)
+            except Exception,e:
+                if re.search("Resource temporarily unavailable",str(traceback.format_exc())):
+                    if kwargs.get("alert"):
+                        raise public_lib.RaiseVlues("The process is already running")
+                    exit()
+                Loging().error(traceback.format_exc())
+            return False
+        return wrapper
+    return decorator
+
+def netowkr_mask_int(x):
+    return sum( [bin(int(i)).count('1') for i in x.split('.')])
+
+
 if __name__ == "__main__":
     text_column(data=[
         ["a","b","c11111111122","d","e","1","水电费"],
@@ -555,4 +652,5 @@ if __name__ == "__main__":
         [3,33],
     ]
     """
+    print(ip_hide_str(3232235777))
     # print check_ip_full_private("192.168.1.1/255.255.255.256")

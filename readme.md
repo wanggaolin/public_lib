@@ -30,27 +30,39 @@
     In [11]: public_lib.CurrDay()
     Out[11]: '2017-07-31'
 
-#### 1.0.4 文件模块
+    In [12]: public_lib.CurrTime1()
+    Out[12]: '2021-06-03 17:08'
+    
+#### 1.0.4 方便的time时区转换模块    
+    public_lib.time_unix_format_bj  unix时间转北京时间
+    public_lib.time_bj_foramt_unix1 北京时间转unix时间
+    public_lib.time_bj_foramt_unix2 北京时间转unix时间
+    public_lib.time_bj_foramt_unix3 北京时间转unix时间
+    public_lib.time_utc_format_bj1 utc时间转北京时间
+    public_lib.time_utc_format_bj2 utc时间转北京时间
+    
+#### 1.0.5 文件模块
     In [17]: public_lib.all_file('.')
     Out[17]: ['./+~JF1688623560254782582.tmp']
 
     In [7]: public_lib.dir_name('/a/b/')
     Out[7]: '/a/b'
         
-#### 1.0.5 方便的网络模块
+#### 1.0.6 方便的网络模块
     In [6]: public_lib.telnet(ip='1.1.1.1',port=22,timeout=10)
     Out[6]: (False, socket.timeout('timed out'))
            
-#### 1.0.6 输出带颜色字体
+           
+#### 1.0.7 输出带颜色字体
     In [3]: print public_lib.color('x')
     In [4]: print public_lib.color('x',name='green')    
     In [5]: print public_lib.color('x',number=35)
     
-#### 1.0.7 隐藏文本字符替换为*
+#### 1.0.8 隐藏文本字符替换为*
     In [2]: public_lib.hide_str('nihaoma',start=2,end=4) #隐藏字符
     Out[2]: 'ni**oma'
     
-#### 1.0.8参数校验
+#### 1.0.9 参数校验
     In [2]: public_lib.check_bank('6228480402564890018') #银行卡号检查
     Out[2]: True
 
@@ -58,27 +70,39 @@
     Out[2]: True
 
     #rule规则列表
-        number:True     必须是数字[小数点/整数/负数]
-        number_str:True 只能输入字母或数字
-        time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
-        time_day_1:true	必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
-        times_1:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
-        times_2:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
-        minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
-        maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
+        number:True         必须是数字[小数点/整数/负数]
+        number_int:True     必须是整数
+        number_float:True   必须是小数点
+        number_str:True     只能输入字母或数字
+        number_str1:True    只能输入字母,数字,划线,中杠,@
+        number_str2:True    只能输入字母,数字,划线,中杠,@,小数点
+        password:True       必须包含大小写字母,数字
+        time_day:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
+        time_day_1:true	    必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
+        times_1:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
+        times_2:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
+        minlength:10	    输入长度最小是 10 的字符串（汉字算一个字符）。
+        maxlength:5	        输入长度最多是 5 的字符串（汉字算一个字符）。
         rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
-        max:5	        输入的数字不能大于 5。
-        min:10	        输入的数字不能小于 10。
-        file:True	    必须是一个文件路径。
-        email:True	    必须是一个邮箱
-        bank:True	    必须是一个银行卡号
-        card:True	    必须是一个身份证号
-        ip:True	        必须是一个合法ip地址
-        mac:True	    必须是一个合法mac地址
-        mobile:True	    必须是一个手机号码
-        symbols:Ture    不得包含特殊符号:*,%,..,\
-        json_load:Ture  必须是一个json可解析的格式
-        domain:Ture     必须是一个域名
+        max:5	            输入的数字不能大于 5。
+        min:10	            输入的数字不能小于 10。
+        file:True	        必须是一个文件路径。
+        email:True	        必须是一个邮箱
+        bank:True	        必须是一个银行卡号
+        card:True	        必须是一个身份证号
+        ip:True	            必须是一个合法ip地址
+        ip_net:True	        必须是一个合法ip网络地址
+        ip_route:True	    必须是一个合法ip地址或者网络地址
+        mac:True	        必须是一个合法mac地址
+        mobile:True	        必须是一个手机号码
+        symbols:Ture        不得包含特殊符号:*,%,..,\
+        json_load:Ture      必须是一个json可解析的格式
+        domain:Ture         必须是一个域名
+        url:Ture            必须是一个网站链接
+        list:['a','b']      参数必须是a或b
+        type_list:Ture      参数类型必须是list
+        type_dict:Ture      参数类型必须是dict
+        member_list:[a,b,c] 参数必须是一个list,同步，每个list元素必须在a,b,c其中一个或多个
 	
     #用法
         #rule:检查规则
@@ -103,7 +127,7 @@
             #msg:失败原因
 
 
-#### 1.0.9　网络ping
+#### 1.0.10　网络ping
     In [3]: public_lib.ping(ip='www.lssin.com')
     Out[3]: ping(status=True, min='3.407', avg='3.581', max='3.726', mdev='0.131', lost='0%', text='')
     
@@ -135,63 +159,77 @@
        
 #### 1.1.5　检查ip地址是否合法       
     In [5]: public_lib.check_ip('1.1.1.1222')
-    Out[5]: False
+    Out[5]: False    
 
 #### 1.1.6　检查ip地址是私有地址
     In [6]: public_lib.check_ip_private('172.16.5.5')
     Out[6]: True
 
-#### 1.1.７　获取系统版本
+#### 1.1.7　ip地址转换为10进制       
+    In [5]: public_lib.ip_format_int('192.168.1.1')
+    Out[5]: 3232235777
+
+#### 1.1.8　10进制IP地址转换为IP地址       
+    In [5]: public_lib.ip_format_str(3232235777)
+    Out[5]: '192.168.1.1'
+
+#### 1.1.9　子网掩码转十六进制       
+    In [5]: public_lib.netowkr_mask_int('255.255.0.0')
+    Out[5]: 16
+
+#### 1.1.10　获取系统版本
     In [5]: public_lib.uname()
     Out[5]: 'Ubuntu 14.04.3 LTS'
 
-#### 1.1.8　检查文本是否包含特殊符号
+#### 1.2.1　检查文本是否包含特殊符号
     In [2]: public_lib.check_symbols('..')
     Out[2]: symbols(status=False, symbols='..')
 
-#### 1.1.9　检查2个文件内容是否一致
+#### 1.2.2　检查2个文件内容是否一致
     In [2]: public_lib.file_diff('/tmp/1','/tmp/2')
     Out[2]: False
 
-#### 1.2.0　获取系统主机名
+#### 1.2.3　获取系统主机名
     In [2]: public_lib.host_name()
     Out[2]: 'GaoLin'
 
-#### 1.2.1　获取系统所有ip
+#### 1.2.4　获取系统所有ip
     In [2]: public_lib.host_ip()
     Out[2]:[{'eth0': '172.16.1.255'}, {'wlan0'
 
-#### 1.2.1　获取list重复元素
+#### 1.2.5　获取list重复元素
     In [2]: public_lib.set_list([1,2,2,2])
     Out[2]: [2]
 
-#### 1.2.2　获取网卡mac地址
+#### 1.2.6　获取网卡mac地址
     In [2]: network_mac('eth0')
     Out[2]: b8:70:f4:1d:fc:61
 
-#### 1.2.3　字典根据key去重
+#### 1.2.7　字典根据key去重
     In [2]: set_dict(data={'a':1,'b':2},key=['b'])
     Out[2]: {'a': 1}
 
-#### 1.2.4　缓冲数据到文件
+#### 1.2.8　缓冲数据到文件
     In [2]: @cache_file(time=5,file='/tmp/.zabbix.cpu.every.cache')
 
-#### 1.2.5　弹出自定义error
+#### 1.2.9　弹出自定义error
     In [2]: raise RaiseVlues('xxx')
 
-#### 1.2.6　html转text
+#### 1.2.10　html转text
     In [2]: public_lib.html_to_text("<p>没有分寸<br/>感</p>")
     Out[2]: HtmlToText(status=True, text=u'\u6ca1\u6709\u5206\u5bf8 \u611f ', error='')
 
-#### 1.2.7　text转html
+#### 1.3.1　text转html
     In [2]: public_lib.text_to_html("""12 4""")
     Out[2]: TextToHtml(status=True, text="<!DO...../html>", error='')
 
-#### 1.2.7　数据保存，读取
+#### 1.3.2　装饰器,同时只能运行一个
+    In [2]: @process_lock(pid="/tmp/1.txt",alert=True)
+
+#### 1.3.3　数据保存，读取
     In [2]: F=public_lib.cache(file='/tmp/1234')
     In [3]: F.save([1,2,3])
     In [4]: F.get()
-
 
 
 ## 2 邮箱模块
@@ -275,4 +313,6 @@
         'w1': [3, 24, 59, 11, 11]
     }
     print F.load(l)
+    
+    
 <div align=center><img width="450" height="200" src="https://raw.githubusercontent.com/wanggaolin/public_lib/master/public_lib/img/1.png"/></div>
