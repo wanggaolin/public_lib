@@ -34,12 +34,12 @@
     Out[12]: '2021-06-03 17:08'
     
 #### 1.0.4 方便的time时区转换模块    
-    public_lib.time_unix_format_bj  unix时间转北京时间
-    public_lib.time_bj_foramt_unix1 北京时间转unix时间
-    public_lib.time_bj_foramt_unix2 北京时间转unix时间
-    public_lib.time_bj_foramt_unix3 北京时间转unix时间
-    public_lib.time_utc_format_bj1 utc时间转北京时间
-    public_lib.time_utc_format_bj2 utc时间转北京时间
+    public_lib.time_unix_format_bj      # unix时间转北京时间
+    public_lib.time_bj_foramt_unix1     # 北京时间转unix时间
+    public_lib.time_bj_foramt_unix2     # 北京时间转unix时间
+    public_lib.time_bj_foramt_unix3     # 北京时间转unix时间
+    public_lib.time_utc_format_bj1      # utc时间转北京时间
+    public_lib.time_utc_format_bj2      # utc时间转北京时间
     
 #### 1.0.5 文件模块
     In [17]: public_lib.all_file('.')

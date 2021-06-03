@@ -227,12 +227,12 @@ def hide_str(Str, start=2, end=3):
 
 def hash_id(x=False):
     if x is False:
-        x = int(time.time()*100000000)
+        x = "%s_%s" % (int(time.time()*100000000),random.randrange(1,9999))
     return hashlib.sha1(str(x)).hexdigest()
 
 def md5_id(x=False):
     if x is False:
-        x = int(time.time()*100000000)
+        x = "%s_%s" % (int(time.time()*100000000),random.randrange(1,9999))
     return hashlib.md5(str(x)).hexdigest()
 
 def user_agent():
@@ -652,5 +652,4 @@ if __name__ == "__main__":
         [3,33],
     ]
     """
-    print(ip_hide_str(3232235777))
     # print check_ip_full_private("192.168.1.1/255.255.255.256")
