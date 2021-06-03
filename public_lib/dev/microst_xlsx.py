@@ -127,7 +127,6 @@ class ExportHander: #导出数据到exlcel
 
     def _save(self,obj,template={}):
         if template:
-            self.data=self._temp_data()
             self._create_temp(template)
         self._create()
         self.wb.save(obj)
@@ -135,6 +134,11 @@ class ExportHander: #导出数据到exlcel
     def save(self,file_path,template={}):
         self._save(file_path,template=template)
         return file_path
+
+    def save_more(self,**kwargs):
+        self._create()
+        self.wb.save(obj)
+
 
     def response(self,template={}):
         import StringIO
@@ -160,12 +164,18 @@ class ImportHander: #从excel读取数据
         self.menu_lenght = len(self.menu)
         self.debug = kwargs.get("debug",False)
 
-    def _relaod(self):
+    def _relaod(self,**kwargs):
+        """
+        :param kwargs:
+           end:数据结束列
+        :return:
+        """
         # ws1 = self.wb.get_sheet_by_name(self.wb.get_sheet_names()[0])
         ws1 = self.wb[self.wb.sheetnames[self.table_number]]
+        end_number = kwargs.get("end",ws1.max_column + 1)
         for row in range(self.y, ws1.max_row + 1):
             tmplist = []
-            for column in range(self.x, ws1.max_column + 1):
+            for column in range(self.x, end_number):
                 _values = ws1.cell(row=row, column=column).value
                 if _values == None:
                     _values = ""
@@ -182,19 +192,23 @@ class ImportHander: #从excel读取数据
         if self.debug is True:
             print public_lib.json_data({"菜单名称":self.menu})
         elif len(set(self.data_excel[0]))!=len(self.menu):
-            self.msg['msg'] = "菜单栏重复字段:%s" % public_lib.set_list(self.data_excel[0])
+            print public_lib.json_data(self.data_excel[0])
+            self.msg['msg'] = "菜单栏重复字段:%s" % public_lib.set_list(self.menu)
         else:
             data = []
             for number in range(len(self.data_excel[1:])):
                 x = self.data_excel[1:][number]
                 f = {}
+                error_menu_name = []
                 for row_number in range(len(x)):
                     excel_name = self.data_excel[0][row_number].strip().replace('\n','')
                     menu = self.menu.get(excel_name,False)
                     if menu is False:
-                        self.msg['msg'] = "非法菜单名称:%s" % excel_name
-                        return
+                        error_menu_name.append([excel_name,row_number])
                     f[menu]=x[row_number]
+                if error_menu_name:
+                    self.msg['msg'] = "非法菜单名称:%s" % error_menu_name
+                    return
                 data.append(f)
             if self.primary_key:
                 res_menu = { m_y:m_x for m_x,m_y in self.menu.items() }
@@ -211,7 +225,7 @@ class ImportHander: #从excel读取数据
             self.msg['status'] = True
             self.msg['data'] = data
 
-    def file(self,file_path):
+    def file(self,file_path,**kwargs):
         try:
             self.wb = load_workbook(filename=file_path)
         except IOError,e:
@@ -220,7 +234,7 @@ class ImportHander: #从excel读取数据
         except Exception,e:
             self.msg['msg'] = '上传的文件必须是一个xlsx文件'
             return self.msg
-        self._relaod()
+        self._relaod(**kwargs)
         self._list_data()
         return self.msg
 
@@ -247,14 +261,11 @@ def excel_data_trace(data):
 
 
 if __name__ == "__main__":
-    # 从excel读取数据
     # import_meni = [['name','姓名'],['number','电话'],['id','班级']]
     # d = ImportHander(menu=import_meni)
     # d.x = 3
     # d.y = 7
     # print public_lib.json_data(d.file(file_path='/data/temp/download/资产主机.xlsx'))
-
-
 
     # 导出数据到exlcel
     # w:列宽，默认为15
@@ -276,6 +287,6 @@ if __name__ == "__main__":
                     "data": [],
                     "width": [{"w": 12}, {"w": 60, "style": "left"}, {"w": 12}],
                     "title": '资产项目-字段说明',
-                })
-    # print ExportHander(**f).response()
+    })
+
 

@@ -1,13 +1,14 @@
 ### python 公共方法库,方便使用
 #### install
     #centos:
-        yum install rrdtool-devel
+        yum -y install rrdtool-devel
     #ubuntu:
         apt-get install librrd-dev
     cd /usr/local/src && git clone https://github.com/wanggaolin/public_lib.git && \
     cd public_lib && python setup.py install || cd public_lib/ && git pull && python setup.py  install
-
-## 1系统模块    
+    echo 'export PYTHON_EGG_CACHE=/tmp/.python-eggs' >> /etc/profile ; source /etc/profile
+    
+## 1 系统模块    
 #### 1.0.1 进度条
     import time
     F = public_lib.proging_rate(screen_max=1000,screen_name='1000M',rate_symbol='#')
@@ -186,9 +187,14 @@
     In [2]: public_lib.text_to_html("""12 4""")
     Out[2]: TextToHtml(status=True, text="<!DO...../html>", error='')
 
+#### 1.2.7　数据保存，读取
+    In [2]: F=public_lib.cache(file='/tmp/1234')
+    In [3]: F.save([1,2,3])
+    In [4]: F.get()
 
 
-## 2邮箱模块
+
+## 2 邮箱模块
 #### 2.0.1　发送邮箱附件,支持多个文件
     print public_lib.send_file(
         smtp='smtp.xxxxx.com',
@@ -199,7 +205,7 @@
         file_list=['/tmp/123','/tmp/456']
     )
     
-#### 2.0.2　发送邮箱
+#### 2.0.2　发送邮件
     print public_lib.send_mail(
         smtp='smtp.xxxxx.com',
         user='alert@xxxxx.com',
@@ -221,12 +227,12 @@
     In [3]: print public_lib.mail_text(a.strip())
     Out[3]:{'Date': 'Mon, 28 Aug 2017 17:49:35 +0800 (CST)', 'text': 'This is a MIE....
 
-## 3监控模块            
+## 3 监控模块            
 #### 3.0.1　根据某个进程名称获取对应的pid和使用的内存大小
     In [2]: public_lib.pid('java')
     Out[2]: pid(memory=1056864, pid=['6168'])
     
-## 4日志模块
+## 4 日志模块
 #### 4.0.1 记录日志到系统日志中[/var/log/message]
     public_lib.syslog.error("test log")  
 
@@ -235,8 +241,8 @@
     f = {
         'menu': [['name', '姓名', {'w': 16}],['number', '电话', {'w': 6}]],
         'data': [
-            {"name":"王高林","number":"1"},
-            {"name":"王高林1"},
+            {"name":{"value":"张三","background":"CD2626"},"number":{"value":"xx"},
+            {"name":{"value":"李四","background":"CD2626"}},
         ],
         'title': '学生登记表'
     }
@@ -249,12 +255,12 @@
     d.y = 7
     print public_lib.json_data(d.file(file_path='/data/temp/download/资产主机.xlsx'))
 
-## 6xmind 模块
+## 6 xmind 模块
 #### 6.0.1 将xmind txt 数据导入到excel中
     F = public_lib.xmind(file='/home/gaolin/Desktop/安全防护.txt')
     print F.save_excel('/tmp/1.xlsx')
 
-## 7rrdtool 模块
+## 7 rrdtool 模块
 #### 7.0.1 根据传递的参数绘制图表
     F = public_lib.rrd()
     F.interval = 5

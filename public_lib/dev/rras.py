@@ -5,8 +5,10 @@ import rrdtool
 import time
 import os
 import random
+import sys
 import tempfile
-
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
 
 class rrd:
     def __init__(self):
@@ -26,26 +28,40 @@ class rrd:
         create_time_start = kwargs['data_start_time']
         if create_time_start > self.start_time:
             create_time_start = self.start_time
-
-        self.rrd_name = tempfile.mkstemp(text=True, suffix='.'+str(int(time.time()*1000))+'.rrd', prefix='.putlic_lib.')[-1]
+        if self.rrd_name is False:
+            self.rrd_name = tempfile.mkstemp(text=True, suffix='.'+str(int(time.time()*1000))+'.rrd', prefix='.putlic_lib.')[-1]
         heartbeat_inter = str(int(self.interval+self.interval*0.5))
         data_statis = kwargs['data_count']
         c1 = [
             self.rrd_name, '--step', str(self.interval), '--start',  str(create_time_start-2),
-                   'RRA:AVERAGE:0.5:1:%s' % data_statis,
-                   'RRA:MAX:0.5:2:%s' % data_statis,
-                   'RRA:MIN:0.5:2:%s' % data_statis,
+                'RRA:AVERAGE:0.5:1:600',
+                'RRA:AVERAGE:0.5:6:700',
+                'RRA:AVERAGE:0.5:24:775',
+                'RRA:AVERAGE:0.5:288:797',
+                'RRA:MAX:0.5:1:600',
+                'RRA:MAX:0.5:6:700',
+                'RRA:MAX:0.5:24:775',
+                'RRA:MAX:0.5:444:797',
+                'RRA:MIN:0.5:1:600',
+                'RRA:MIN:0.5:6:700',
+                'RRA:MIN:0.5:24:775',
+                'RRA:MIN:0.5:444:797',
+                   # 'RRA:AVERAGE:0.5:1:%s' % data_statis,
+                   # 'RRA:MAX:0.5:2:%s' % data_statis,
+                   # 'RRA:MIN:0.5:2:%s' % data_statis,
         ]
         for lable_name in kwargs['lable']:
             c1.append("DS:%s:GAUGE:%s:0:U" % (lable_name['name_hide'],heartbeat_inter))
-        rrdtool.create(*c1)
+        rrdtool.create(*[ _x.encode("utf-8") for _x in c1 ])
+
+    def str(self,x):
+        return x.encode("utf-8")
 
     def update(self,data_value):
         """
         :param data_value: [time,value1,valu2]
         """
-        # print time.strftime('%Y-%m-%d %H:%M:%S', (time.localtime(float(data_value[0])))),':'.join(data_value)
-        return rrdtool.updatev(self.rrd_name,':'.join(data_value))
+        return rrdtool.updatev(self.str(self.rrd_name),':'.join(data_value))
 
     def color(self):
         return ['#1A7C11', '#F63100', '#2774A4', '#A54F10', '#FC6EA3', '#6C59DC', '#AC8C14', '#611F27', '#F230E0',
@@ -55,10 +71,8 @@ class rrd:
         """
         :param kwargs:
             :data_count: create photo data count
-
         :return:
         """
-
         time_cha = float(self.end_time - self.start_time)
         x_inter  = int(time_cha / 10/60)
         x_grid = "MINUTE:%s:MINUTE:%s:MINUTE:%s:0:" % (x_inter*3,x_inter*2,x_inter)
@@ -89,9 +103,6 @@ class rrd:
             "end":time.strftime(self.time_format, (time.localtime(self.end_time))),
         }
 
-
-
-
         f1 = [
             self.img, "--start", str(self.start_time-2),"--end", str(self.end_time+1),"--vertical-label=%(y_desc)s" % x,
             "--x-grid", x_grid,
@@ -99,6 +110,7 @@ class rrd:
             "--watermark",kwargs['company'],
             "COMMENT:From %(start)s To %(end)s\c" % x,
             "COMMENT:\\r",
+            "TEXTALIGN:right",
             "--color","FONT#000000",
             "--color","BACK#F3F3F3",
             "--color","CANVAS#FDFDFD",
@@ -132,8 +144,8 @@ class rrd:
             f1.append("GPRINT:%(key_cal)s:MAX:Max\:%%6.2lf%%S%(unit)s" % n)
             f1.append("COMMENT: ")
             f1.append("GPRINT:%(key_cal)s:MIN:Min\:%%6.2lf%%S%(unit)s\\l" % n)
-        rrdtool.graph(*f1)
-
+        rrdtool.graph(*[ self.str(_x) for _x in f1])
+        return self.img
 
     def load(self,data):
         """
@@ -181,20 +193,9 @@ if __name__ == "__main__":
     F.start_time = 1529206065-5
     l = {
         'time': ['1529206065', '1529206070', '1529206075', '1529206080', '1529206085'],
-        'lable': [{'type': 'AREA', 'name': 'w1','color':'#5A2B57'}, {'name': 'w2'}],
-        'w2': [81, 79, 60, 80, 78],
-        'w1': [3, 24, 59, 11, 11]
+        'lable': [{'type': 'AREA', 'name': 'w1123','color':'#5A2B57'}, {'name': 'w2'}],
+        'w2': [81, 2, 60, 80, 78],
+        'w1123': [3, 24, 59, 11, 11]
     }
     print F.load(l)
-
-    # k = 500
-    # s = [int(time.time()) - 5 * (k - i) for i in range(k)]
-    # l = {
-    #     "time":map(str,s),
-    #     "lable":[{"name":"w1","type":"AREA"},{"name":"w2"}],
-    #     "w1":[ random.randint(1,80) for i in s ],
-    #     "w2":[ random.randint(30,100) for i in s ],
-    # }
-    # print F.load(l)
-    # print l['w1']
 

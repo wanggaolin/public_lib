@@ -11,7 +11,6 @@ import time
 import re
 import json
 import socket
-import commands
 import telnetlib
 import commands
 import hashlib
@@ -56,6 +55,37 @@ def code_try(*args,**kwargs):
         return wrapper
     return decorator
 
+def code_try_def(*args,**kwargs):
+    """
+    '@function if return Ture of exit `number=count,` `sleep=0` `debug=True`'
+    :param kwargs:
+        :number: try count
+        :sleep:  run code interval
+        :debug:  debug info
+    :return:True
+    """
+    def decorator(func):
+        def wrapper(*args, **kw):
+            number = kwargs['number']
+            error_message = ""
+            error_str = ""
+            end = {}
+            for i in range(number):
+                try:
+                    end = func(*args, **kw)
+                    if end["status"] is True:
+                        return end
+                except Exception,e:
+                    error_str = str(e)
+                    error_message = str(traceback.format_exc())
+                if kwargs.get('debug',False) is True:
+                    print "run function:%s try:%s error:%s" % (func.func_name,i,error_message)
+                time.sleep(kwargs.get('sleep',0))
+            end["error"] = error_message
+            end["error_short"] = error_str
+            return end
+        return wrapper
+    return decorator
 
 def all_file(dir_path):
     """
@@ -80,7 +110,7 @@ def json_data(x,indent=4):
                 x = json.loads(x)
             x = json.dumps(x, indent=indent, ensure_ascii=False)
         except Exception,e:
-            _system_logs("jsondata error, data:%s error:%s" % x,e)
+            _system_logs().error("jsondata error, data:%s error:%s" % (x,e))
             pass
     return x
 
@@ -103,8 +133,7 @@ def dir_name(x):
     :return: /a/b
     """
     if x:
-        if x[-1] == '/':
-            x = x[0:-1]
+        x = re.sub(r'/+$', "", str(x))
     return x
 
 def file_name(x):
@@ -113,9 +142,7 @@ def file_name(x):
     :return: /a/b
     """
     if x:
-        x = dir_name(x)
-        if x[0] == '/':
-            x = str(x[1:]).replace('\\','/')
+        x = dir_name(x=re.sub(r'^/+',"",str(x)))
     return x
 
 def telnet(*args,**kwargs):
@@ -181,7 +208,7 @@ def check_ip(ip=None):
         end = re.findall(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$', ip)
         if end:
             a,b,c,d = map(int,end[0].split('.'))
-            if 0 < a < 255 and b < 255 and c < 255 and 0 < d < 255:
+            if 0 < a <= 255 and b <= 255 and c <= 255 and 0 < d <= 255:
                 return True
     return False
 
@@ -193,11 +220,27 @@ def check_ip_private(ip=None):
     :return:bool
     """
     if check_ip(ip):
-        end = re.search(r'^10\.|^172\.16\.|^192\.168\.', ip)
+        end = re.search(r'^10\.|^172\.16\.|^192\.168\.|^127\.0', ip)
         if end:
             return True
-        elif 16 < int(ip.split(".")[1]) < 32:
+        elif 16 < int(ip.split(".")[1]) < 32 and re.search(r'^172\.',ip):
             return True
+    return False
+
+def check_ip_full_private(ip=None):
+    """
+    check ip is private
+    :param ip:ip format is xxx.xxx.xxx.xxx/x.x.x.x
+    :return:bool
+    """
+    if re.search(r'^\d+\.\d+\.\d+\.\d+\/\d+\.\d+\.\d+\.\d+$',ip):
+        ip_name = str(ip).split("/")
+        if check_ip_private(ip_name[0]):
+            end = re.search(r'^\d+\.\d+\.\d+\.\d+$', ip_name[-1])
+            if end:
+                ip_mask = map(int,ip_name[-1].split("."))
+                if max(ip_mask) <= 255 and min(ip_mask) >= 0:
+                    return True
     return False
 
 def uname():
@@ -332,8 +375,13 @@ def host_name():
 
 def host_ip():
     'get system ip'
+    ip_command = "ip"
+    if os.path.exists("/sbin/ip"):
+        ip_command = "/sbin/ip"
+    elif os.path.exists("/usr/sbin/ip"):
+        ip_command = "/usr/sbin/ip"
     return [ {i[0]:[i[2],i[1]]}
-       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether (\S+) brd \S+\n\s+inet (\S+)/\d+ \S+ ',commands.getoutput("ip addr")))
+       for i in  (re.findall(r'\d: (\w+): <.*\n\s+link/ether (\S+) brd \S+\n\s+inet (\S+)/\d+ \S+ ',commands.getoutput(ip_command + " addr")))
     ]
 
 def set_list(data=[]):
@@ -440,6 +488,71 @@ class cache:
 
 
 
+def locks(*arg,**kwa):
+    """
+    cache data to file
+    :param kwargs:
+        :file: lock file path
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            file_path = kwa['lock']
+            file_lock = open(file_path + '.lock', "a+")
+            fcntl.flock(file_lock.fileno(), fcntl.LOCK_EX)
+            data = func(*args, **kwargs)
+            file_lock.close()
+            return data
+        return wrapper
+    return decorator
+
+
+def text_column(**kwargs):
+    """
+    Format column alignment
+    :param kwargs:
+        data:[
+            [x,x,x,x],
+            [x1,x1,x1,x1],
+        ]
+    :return: text
+    """
+    defloumn = kwargs.get("size",2)
+    data = kwargs["data"]
+    s = max([ len(_a) for _a in data ])
+    for _num,_num_data in enumerate(data):
+        if len(_num_data) < s:
+            _num_data.extend([ "" for _n in range(s-len(_num_data)) ])
+
+    max_size = {}
+    for _col,_col_data in enumerate(map(list,zip(*data))):
+        max_size[str(_col)] = max([ len(_l) for _l in _col_data ])+defloumn
+
+    p = []
+    for i in data:
+        txt = []
+        for _s1,_s2 in enumerate(i):
+            txt.append( _s2.ljust(max_size[str(_s1)]))
+        p.append("".join(txt))
+    return "\n".join(p)
 
 if __name__ == "__main__":
-    print check_ip_private("172.20.28.241")
+    text_column(data=[
+        ["a","b","c11111111122","d","e","1","水电费"],
+        ["a123123","b1","c","11","e","f21"],
+        ["a5","b","csdfsdf","d22","e","f"],
+        ["a57","b12","c","d","e","f123123"],
+        ["a5","b23","c","d","e25","f123123"],
+    ])
+    """
+    [
+        [1,2,3],
+        [11,22,33],
+    ]   
+        
+    [
+        [1,11],
+        [2,22],
+        [3,33],
+    ]
+    """
+    # print check_ip_full_private("192.168.1.1/255.255.255.256")

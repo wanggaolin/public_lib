@@ -7,8 +7,16 @@ alarm_language = {
         "en":"can not be empty"
     },
     "number":{
-        "zh":"必须是一个整数",
-        "en":"must be an integer"
+        "zh":"必须是一个数字",
+        "en":"must be an number"
+    },
+    "number_int": {
+        "zh": "必须是一个整数",
+        "en": "must be an integer"
+    },
+    "number_float": {
+        "zh": "必须是一个小数点",
+        "en": "must be an float number"
     },
     "minlength": {
         "zh": "最少要输入{number}个字符",
@@ -33,6 +41,14 @@ alarm_language = {
     "number_str": {
         "zh": "只能输入字母或数字",
         "en": "only letters or numbers can be entered"
+    },
+    "number_str1": {
+        "zh": "只能输入字母,数字,下划线,中杠,邮箱",
+        "en": "only letters or numbers can be entered or _ or - or @"
+    },
+    "number_str2": {
+        "zh": "只能输入字母,数字,下划线,中杠,邮箱,小数点",
+        "en": "only letters or numbers can be entered or _ or - or @ or ."
     },
     "time_day": {
         "zh": "必须是正确格式的日期",
@@ -114,5 +130,28 @@ alarm_language = {
         "zh": "{number1} 数据不合法",
         "en": "{number1} is invalid data on index"
     },
+    "password_number": {
+        "zh": "必须包含数字",
+        "en": "must be inclued number"
+    },
+    "password_Str": {
+        "zh": "必须包含大写字母",
+        "en": "must be inclued number"
+    },
+    "password_str": {
+        "zh": "必须包小写字母",
+        "en": "must be inclued capital letters"
+    },
+    "ip_net": {
+        "zh": "必须是一个网络地址",
+        "en": "{ip_net} is invalid ip network"
+    },
+    "uudi1": {
+        "zh": "必须是一个合法的uuid1",
+        "en": "{uudi1} is invalid uuid1"
+    },
+    "ip_route": {
+        "zh": "必须是一个合法的IP地址或网络地址",
+        "en": "{ip_route} is invalid iP address or network segment"
+    },
 }
-

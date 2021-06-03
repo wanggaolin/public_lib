@@ -2,6 +2,7 @@
 #encoding=utf-8
 import requests
 import json
+import copy
 import threading
 import sys
 
@@ -117,9 +118,10 @@ class _zabbix(object):
             output = 'extend'
         else:
             output = ["hostid", "host", "status", "error"]
-        self.base['params'] = {"output": output,"filter": {"host": kwargs.get('host')}}
-        self.base['method'] = "host.get"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"output": output,"filter": {"host": kwargs.get('host')}}
+        base_dict['method'] = "host.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def host_id_exists(self, *args, **kwargs):
@@ -128,9 +130,10 @@ class _zabbix(object):
         :param kwargs:
             hostid: host id
         """
-        self.base['params'] = {"output": ["hostid"],"hostids":kwargs['hostid']}
-        self.base['method'] = "host.get"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"output": ["hostid"],"hostids":kwargs['hostid']}
+        base_dict['method'] = "host.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def host_create(self,*args,**kwargs):
@@ -143,8 +146,9 @@ class _zabbix(object):
         :return:
         """
         Ipaddres = kwargs['ip']
-        self.base['method'] = "host.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "host.create"
+        base_dict['params'] = {
             "host": kwargs.get('name',Ipaddres),
             "interfaces": [{
                 "type": 1,
@@ -157,7 +161,7 @@ class _zabbix(object):
             "groups": [{"groupid": kwargs.get('groupid',8)}
             ],
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def host_delete(self,*args,**kwargs):
@@ -167,9 +171,10 @@ class _zabbix(object):
             :hostid_list : [hostid1,hostid2]
         :return:
         """
-        self.base['method'] = "host.delete"
-        self.base['params'] = kwargs['hostid_list']
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "host.delete"
+        base_dict['params'] = kwargs['hostid_list']
+        return self._req(data=base_dict)
 
     @verfylogin
     def items_search(self, *args, **kwargs):
@@ -185,9 +190,10 @@ class _zabbix(object):
             output = 'extend'
         else:
             output = ["name", "itemids", "description", "webitems","key_","units","error"]
-        self.base['method'] = "item.get"
-        self.base['params'] = {"output": output,"hostids": kwargs['hostid'],"webitems": True,"search": {"key_": kwargs.get('key', '')},}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "item.get"
+        base_dict['params'] = {"output": output,"hostids": kwargs['hostid'],"webitems": True,"search": {"key_": kwargs.get('key', '')},}
+        return self._req(data=base_dict)
 
     @verfylogin
     def items_get(self, *args, **kwargs):
@@ -202,9 +208,10 @@ class _zabbix(object):
             output = 'extend'
         else:
             output = ["name", "itemids", "description", "webitems","key_","units","error"]
-        self.base['method'] = "item.get"
-        self.base['params'] = {"output": output,"itemids":kwargs['itemsid']}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "item.get"
+        base_dict['params'] = {"output": output,"itemids":kwargs['itemsid']}
+        return self._req(data=base_dict)
 
     @verfylogin
     def items_exists(self, *args, **kwargs):
@@ -215,15 +222,17 @@ class _zabbix(object):
             hostid : host id
         :return:
         """
-        self.base['method'] = "item.get"
-        self.base['params'] = self.base['params'] = {"output": "itemid","hostids": kwargs['hostid'],"search": {"key_": kwargs.get('key', '')},}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "item.get"
+        base_dict['params'] = {"output": "itemid","hostids": kwargs['hostid'],"search": {"key_": kwargs.get('key', '')},}
+        return self._req(data=base_dict)
 
     @verfylogin
     def items_delete(self, *args, **kwargs):
-        self.base['method'] = "item.delete"
-        self.base['params'] = kwargs['itemslist']
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "item.delete"
+        base_dict['params'] = kwargs['itemslist']
+        return self._req(data=base_dict)
 
     @verfylogin
     @verfy_agent_type
@@ -247,8 +256,9 @@ class _zabbix(object):
         """
         Type = kwargs.get('type', 'numeric')
         AgentType = kwargs.get('agent_type', 'Zabbix_agent')
-        self.base['method'] = "item.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "item.create"
+        base_dict['params'] = {
             "name": kwargs['name'],
             "key_": kwargs['key_'],
             "hostid": kwargs['hostid'],
@@ -261,7 +271,7 @@ class _zabbix(object):
             "units":kwargs.get('units', ''),
             "formula":kwargs.get('formula', 1),
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     @verfy_data_type
@@ -273,14 +283,17 @@ class _zabbix(object):
             :limit: data count,defualt is 10
             :type:  history data type,default is numeric
         """
-        self.base['method'] = "history.get"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "history.get"
+        base_dict['params'] = {
                 "output": "extend",
+                "sortfield": "clock",
+                "sortorder": "DESC",
                 "history": self.data_type[kwargs['type']],
                 "itemids": kwargs.get('itemsid', 1),
                 "limit": kwargs.get('limit', 10)
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def interface_get(self,*args,**kwargs):
@@ -289,9 +302,10 @@ class _zabbix(object):
         :param kwargs:
             hostid: host id
         """
-        self.base['method'] = "hostinterface.get"
-        self.base['params'] = {"output": "extend", "hostids": kwargs['hostid']}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "hostinterface.get"
+        base_dict['params'] = {"output": "extend", "hostids": kwargs['hostid']}
+        return self._req(data=base_dict)
 
     @verfylogin
     def interface_create(self, *args, **kwargs):
@@ -299,8 +313,9 @@ class _zabbix(object):
         Interface = kwargs.get('type', 'agent')
         if Interface not in InterfaceType.keys():
             raise ValueError("monitor type must in is:%s" % '/'.join(InterfaceType.keys()))
-        self.base['method'] = "hostinterface.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "hostinterface.create"
+        base_dict['params'] = {
             "hostid": kwargs['hostid'],
             "dns": "",
             "ip": kwargs['ip'],
@@ -309,7 +324,7 @@ class _zabbix(object):
             "type": InterfaceType[Interface],
             "useip": 1
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def interface_exists(self,*args,**kwargs):
@@ -319,9 +334,10 @@ class _zabbix(object):
             hostids: host id
         :return:
         """
-        self.base['method'] = "hostinterface.get"
-        self.base['params'] = {"output": "interfaceid", "hostids": kwargs['hostid']}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "hostinterface.get"
+        base_dict['params'] = {"output": "interfaceid", "hostids": kwargs['hostid']}
+        return self._req(data=base_dict)
 
     @verfylogin
     def screen_get(self, *args, **kwargs):
@@ -331,14 +347,15 @@ class _zabbix(object):
             screenid: screen id
         :return:
         """
+        base_dict = copy.deepcopy(self.base)
         if kwargs.get('info', True) is True:
-            self.base['params'] = {"output": "extend","selectScreenItems": "extend"}
+            base_dict['params'] = {"output": "extend","selectScreenItems": "extend"}
         else:
-            self.base['params'] = {"output": ["name","hsize","vsize"]}
-        self.base['method'] = "screen.get"
+            base_dict['params'] = {"output": ["name","hsize","vsize"]}
+            base_dict['method'] = "screen.get"
         if kwargs.get('screenid',False):
-            self.base['params']['screenids'] = kwargs['screenid']
-        return self._req(data=self.base)
+            base_dict['params']['screenids'] = kwargs['screenid']
+        return self._req(data=base_dict)
 
     @verfylogin
     def screen_create(self, *args, **kwargs):
@@ -363,8 +380,9 @@ class _zabbix(object):
             if x >= hsize:x=0
         Vsizey = (vsize / hsize) + (vsize % hsize)
         if Vsizey < y:vsize=y+1
-        self.base['method'] = "screen.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "screen.create"
+        base_dict['params'] = {
             "name": kwargs['name'],
             "hsize": hsize,
             "vsize": vsize,
@@ -372,7 +390,7 @@ class _zabbix(object):
         }
         # import public_lib
         # print public_lib.json_data(Dict)
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def screen_create_host(self, *args, **kwargs):
@@ -400,13 +418,14 @@ class _zabbix(object):
             info : if info is Ture,reutrn all info,defualt=False
         :return:
         """
-        self.base['method'] = "graph.get"
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "graph.get"
         if kwargs.get('info', None) is True:
             output = 'extend'
         else:
             output = ["name"]
-        self.base['params'] = {"output": output,"hostids": kwargs['hostid']}
-        return self._req(data=self.base)
+        base_dict['params'] = {"output": output,"hostids": kwargs['hostid']}
+        return self._req(data=base_dict)
 
     @verfylogin
     def screen_delete_id(self, *args, **kwargs):
@@ -416,9 +435,10 @@ class _zabbix(object):
             screenid: [screenid,screenid]
         :return:
         """
-        self.base['method'] = "screen.delete"
-        self.base['params'] = kwargs['screenid_list']
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "screen.delete"
+        base_dict['params'] = kwargs['screenid_list']
+        return self._req(data=base_dict)
 
     @verfylogin
     def screen_delete_name(self, *args, **kwargs):
@@ -430,6 +450,7 @@ class _zabbix(object):
         """
         screen_name = kwargs.get('name')
         screen_id = False
+        base_dict = copy.deepcopy(self.base)
         for i in self.screen_get(info=False)['result']:
             if i['name'] == screen_name:
                 screen_id = i['screenid']
@@ -437,9 +458,9 @@ class _zabbix(object):
         if screen_id is False:
             raise RaiseVlues("screen name %s not exists" % screen_name)
         else:
-            self.base['method'] = "screen.delete"
-            self.base['params'] = [screen_id]
-            return self._req(data=self.base)
+            base_dict['method'] = "screen.delete"
+            base_dict['params'] = [screen_id]
+            return self._req(data=base_dict)
 
     @verfylogin
     def group_create(self, *args, **kwargs):
@@ -449,9 +470,10 @@ class _zabbix(object):
           :name :host group name
         :return:[]
         """
-        self.base['params'] = {"name": kwargs['name']}
-        self.base['method'] = "hostgroup.create"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"name": kwargs['name']}
+        base_dict['method'] = "hostgroup.create"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_exists(self, *args, **kwargs):
@@ -461,9 +483,10 @@ class _zabbix(object):
           :name :host group name
         :return:[]
         """
-        self.base['params'] = {"output": ["name"], "filter": {"name":kwargs["name"]}}
-        self.base['method'] = "hostgroup.get"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"output": ["name"], "filter": {"name":kwargs["name"]}}
+        base_dict['method'] = "hostgroup.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_delete(self, *args, **kwargs):
@@ -473,9 +496,10 @@ class _zabbix(object):
           :groupid_list:host group id
         :return:[]
         """
-        self.base['params'] = kwargs['groupid_list']
-        self.base['method'] = "hostgroup.delete"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = kwargs['groupid_list']
+        base_dict['method'] = "hostgroup.delete"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_host_add(self, *args, **kwargs):
@@ -486,12 +510,13 @@ class _zabbix(object):
           :group_id: host group id
         :return:[]
         """
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {
             "groups": [{"groupid": kwargs['group_id']}],
             "hosts": self.list_to_list(data=kwargs.get('host_id',[]),key="hostid")
         }
-        self.base['method'] = "hostgroup.massadd"
-        return self._req(data=self.base)
+        base_dict['method'] = "hostgroup.massadd"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_host_remove(self, *args, **kwargs):
@@ -502,9 +527,10 @@ class _zabbix(object):
           :group_id: host group id
         :return:[]
         """
-        self.base['params'] = {"groupids": [kwargs['group_id']],"hostids": kwargs['host_id']}
-        self.base['method'] = "hostgroup.massremove"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"groupids": [kwargs['group_id']],"hostids": kwargs['host_id']}
+        base_dict['method'] = "hostgroup.massremove"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_get(self, *args, **kwargs):
@@ -517,9 +543,9 @@ class _zabbix(object):
             output = ["groupid", "name"]
         else:
             output = 'extend'
-        self.base['params'] = {"output": output}
-        self.base['method'] = "hostgroup.get"
-        return self._req(data=self.base)
+        base_dict['params'] = {"output": output}
+        base_dict['method'] = "hostgroup.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def group_get_name(self, *args, **kwargs):
@@ -529,9 +555,10 @@ class _zabbix(object):
           :name ： host group name
         :return:[]
         """
-        self.base['params'] = {"output": "extend","filter": {"name": [kwargs['name']]}}
-        self.base['method'] = "hostgroup.get"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {"output": "extend","filter": {"name": [kwargs['name']]}}
+        base_dict['method'] = "hostgroup.get"
+        return self._req(data=base_dict)
 
     @verfy_graph_type
     @verfylogin
@@ -545,15 +572,16 @@ class _zabbix(object):
         :return:
         """
         graphtype = self.graph_type[kwargs.get('graphtype', 'default')]
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {
                 "name": kwargs['name'],
                 "width": 900,
                 "height": 200,
                 "gitems":kwargs.get('gitems',[]),
                 "graphtype":graphtype,
             }
-        self.base['method'] = "graph.create"
-        return self._req(data=self.base)
+        base_dict['method'] = "graph.create"
+        return self._req(data=base_dict)
 
     @verfylogin
     def graph_delete(self, *args, **kwargs):
@@ -563,9 +591,10 @@ class _zabbix(object):
           :graphid_list:graph photo id
         :return:[]
         """
-        self.base['params'] = kwargs['graphid_list']
-        self.base['method'] = "graph.delete"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = kwargs['graphid_list']
+        base_dict['method'] = "graph.delete"
+        return self._req(data=base_dict)
 
     @verfylogin
     def graph_hostid_exists(self, *args, **kwargs):
@@ -575,9 +604,10 @@ class _zabbix(object):
             :name: graph photo name
             :hostid: monitor host id
         """
-        self.base['method'] = "graph.get"
-        self.base['params'] = {"name": kwargs['name'],"hostids": kwargs['hostid'],"output":["graphid","name"]}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "graph.get"
+        base_dict['params'] = {"name": kwargs['name'],"hostids": kwargs['hostid'],"output":["graphid","name"]}
+        return self._req(data=base_dict)
 
     @verfylogin
     def graph_hostname_exists(self, *args, **kwargs):
@@ -587,9 +617,10 @@ class _zabbix(object):
             :name: graph photo name
             :host_name: monitor host name
         """
-        self.base['method'] = "graph.get"
-        self.base['params'] = {"name": kwargs['name'],"host": kwargs['host_name'],"output":["graphid","name"]}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "graph.get"
+        base_dict['params'] = {"name": kwargs['name'],"host": kwargs['host_name'],"output":["graphid","name"]}
+        return self._req(data=base_dict)
 
     @verfylogin
     def trigger_create(self, *args, **kwargs):
@@ -600,14 +631,15 @@ class _zabbix(object):
             :expression: means of expression
         :return:
         """
-        self.base['method'] = "trigger.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "trigger.create"
+        base_dict['params'] = {
             "description": kwargs['name'],
             "priority": 5,
             "expression":kwargs['expression'],
             "type":1
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def trigger_itemsid_get(self, *args, **kwargs):
@@ -618,15 +650,16 @@ class _zabbix(object):
             :altogether_express: hide means of expression,default=False
         :return:
         """
+        base_dict = copy.deepcopy(self.base)
         if kwargs.get('info', None) is True:
             output = 'extend'
         else:
             output = ["name","status","expression","description"]
-        self.base['method'] = "trigger.get"
-        self.base['params'] = {"output": output,"itemids": kwargs['itemids']}
+        base_dict['method'] = "trigger.get"
+        base_dict['params'] = {"output": output,"itemids": kwargs['itemids']}
         if kwargs.get('altogether_express') is True:
-            self.base['params']['expandExpression'] = 'extend'
-        return self._req(data=self.base)
+            base_dict['params']['expandExpression'] = 'extend'
+        return self._req(data=base_dict)
 
     @verfylogin
     def trigger_hostsid_get(self, *args, **kwargs):
@@ -637,13 +670,14 @@ class _zabbix(object):
             :items_info: print itemsid to end,default='',chico=['extend','']
         :return:
         """
+        base_dict = copy.deepcopy(self.base)
         if kwargs.get('info', None) is True:
             output = 'extend'
         else:
             output = ["name","status","expression","description","functions"]
-        self.base['method'] = "trigger.get"
-        self.base['params'] = {"output": output,"hostids": kwargs['hostid'],"selectFunctions": kwargs.get('items_info','')}
-        return self._req(data=self.base)
+        base_dict['method'] = "trigger.get"
+        base_dict['params'] = {"output": output,"hostids": kwargs['hostid'],"selectFunctions": kwargs.get('items_info','')}
+        return self._req(data=base_dict)
 
     @verfylogin
     def trigger_delete(self, *args, **kwargs):
@@ -653,9 +687,10 @@ class _zabbix(object):
           :triggerid_list:[trigger_id1,trigger_id2]
         :return:[]
         """
-        self.base['params'] = kwargs['triggerid_list']
-        self.base['method'] = "trigger.delete"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = kwargs['triggerid_list']
+        base_dict['method'] = "trigger.delete"
+        return self._req(data=base_dict)
 
     @verfylogin
     def template_get(self, *args, **kwargs):
@@ -666,15 +701,16 @@ class _zabbix(object):
             :name: template name,default=False
         :return:[]
         """
+        base_dict = copy.deepcopy(self.base)
         if kwargs.get('info', False) is True:
             output = ["name","templateid","error"]
         else:
             output = 'extend'
-        self.base['params'] = {"output": output}
+            base_dict['params'] = {"output": output}
         if kwargs.get('name',False):
-            self.base['params']['filter'] = {"host":[kwargs['name']]}
-        self.base['method'] = "template.get"
-        return self._req(data=self.base)
+            base_dict['params']['filter'] = {"host":[kwargs['name']]}
+        base_dict['method'] = "template.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def template_name_exists(self, *args, **kwargs):
@@ -683,9 +719,10 @@ class _zabbix(object):
         :param kwargs:
             :name: template name
         """
-        self.base['method'] = "template.get"
-        self.base['params'] = {"output": ["name","templateid"],"filter":{"name":kwargs["name"]}}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "template.get"
+        base_dict['params'] = {"output": ["name","templateid"],"filter":{"name":kwargs["name"]}}
+        return self._req(data=base_dict)
 
     @verfylogin
     def template_create(self, *args, **kwargs):
@@ -698,13 +735,14 @@ class _zabbix(object):
             :expression: means of expression
         :return:
         """
-        self.base['method'] = "template.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "template.create"
+        base_dict['params'] = {
             "host": kwargs['name'],
             "groups":{"groupid":kwargs['group_id']},
             "hosts":self.list_to_list(data=kwargs.get('hostid_list',[]),key="hostid"),
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def template_delete(self, *args, **kwargs):
@@ -714,9 +752,10 @@ class _zabbix(object):
           :templateid_list:[template_id1,template_id2]
         :return:[]
         """
-        self.base['params'] = kwargs['templateid_list']
-        self.base['method'] = "template.delete"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = kwargs['templateid_list']
+        base_dict['method'] = "template.delete"
+        return self._req(data=base_dict)
 
     @verfylogin
     def host_link_template(self, *args, **kwargs):
@@ -727,12 +766,13 @@ class _zabbix(object):
           :host_id: host id
         :return:[]
         """
-        self.base['method'] = "template.massadd"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "template.massadd"
+        base_dict['params'] = {
             "templates": self.list_to_list(data=kwargs['templateid_list'],key="templateid"),
             "hosts": [kwargs['host_id']]
         }
-        return self._req(data=self.base)
+        return self._req(data=base_dict)
 
     @verfylogin
     def httptest_create(self, *args, **kwargs):
@@ -750,8 +790,9 @@ class _zabbix(object):
             :timeout: access url of timeout,default=15
         :return:
         """
-        self.base['method'] = "httptest.create"
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "httptest.create"
+        base_dict['params'] = {
             "name": kwargs['name'],
             "hostid": kwargs['hostid'],
             "agent": kwargs.get('agent','Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko, monitor httptest of zabbix'),
@@ -766,10 +807,10 @@ class _zabbix(object):
             ]
         }
         if kwargs.get('auth_basic') is True:
-            self.base['params']['authentication'] = 1
-            self.base['params']['http_user'] = kwargs.get('user','user')
-            self.base['params']['http_password'] = kwargs.get('password','')
-        return self._req(data=self.base)
+            base_dict['params']['authentication'] = 1
+            base_dict['params']['http_user'] = kwargs.get('user','user')
+            base_dict['params']['http_password'] = kwargs.get('password','')
+        return self._req(data=base_dict)
 
     @verfylogin
     def httptest_get(self, *args, **kwargs):
@@ -779,17 +820,18 @@ class _zabbix(object):
             :hostid: show all httptest in host id
         :return:[]
         """
+        base_dict = copy.deepcopy(self.base)
         if kwargs.get('info', None) is True:
             output = 'extend'
         else:
             output = ["httptestid","name","status","agent"]
-        self.base['params'] = {
+        base_dict['params'] = {
             "output": output,
             "selectSteps": "extend",
             "hostid":kwargs.get("hostid","")
         }
-        self.base['method'] = "httptest.get"
-        return self._req(data=self.base)
+        base_dict['method'] = "httptest.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def httptest_id_get(self, *args, **kwargs):
@@ -799,13 +841,14 @@ class _zabbix(object):
             :httptest_id: httptest id
         :return:[]
         """
-        self.base['params'] = {
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = {
             "output": 'extend',
             "selectSteps": "extend",
             "httptestids":kwargs['httptest_id']
         }
-        self.base['method'] = "httptest.get"
-        return self._req(data=self.base)
+        base_dict['method'] = "httptest.get"
+        return self._req(data=base_dict)
 
     @verfylogin
     def httptest_delete(self, *args, **kwargs):
@@ -815,9 +858,10 @@ class _zabbix(object):
           :httptestid_list:[httptest_id1,httptest_id2]
         :return:[]
         """
-        self.base['params'] = kwargs['httptestid_list']
-        self.base['method'] = "httptest.delete"
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['params'] = kwargs['httptestid_list']
+        base_dict['method'] = "httptest.delete"
+        return self._req(data=base_dict)
 
     @verfylogin
     def host_unlink_template(self, *args, **kwargs):
@@ -828,9 +872,10 @@ class _zabbix(object):
           :host_id: host id
         :return:[]
         """
-        self.base['method'] = "template.massremove"
-        self.base['params'] = {"templateids": kwargs['templateid_list'],"hostids": kwargs['host_id']}
-        return self._req(data=self.base)
+        base_dict = copy.deepcopy(self.base)
+        base_dict['method'] = "template.massremove"
+        base_dict['params'] = {"templateids": kwargs['templateid_list'],"hostids": kwargs['host_id']}
+        return self._req(data=base_dict)
 
     def _host_info_thread(self,**kwargs):
         f = _zabbix()
@@ -849,6 +894,7 @@ class _zabbix(object):
         """
 
         data_list = []
+        base_dict = copy.deepcopy(self.base)
         host_info = self.host_get(host=kwargs.get('host_name',''))
         if not host_info['result']:
             raise  ValueError("%s not find" % kwargs['host_name'])
@@ -879,11 +925,9 @@ class _zabbix(object):
             return json.dumps(data_list, indent=4, ensure_ascii=False)
         return data_list
 
-
-
 if __name__ == "__main__":
-    F = _zabbix(host='http://zabbix.migang.com',timeout=15)
-    F.login(user='admin',passwd='4c7c0022cb1d20')
+    F = _zabbix(host='http://zabbix.migang.com/zabbix',timeout=15)
+    F.login(user='admin',passwd='')
     F.timeout = 30                      #请求超时时间
 
     # print F.httptest_get()                            #查看所有监控,info=Trure

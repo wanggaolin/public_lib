@@ -7,6 +7,7 @@ class RaiseVlues(Exception):
         :param value:message text
         """
         self.value = value
+        self.message = value
 
     def __str__(self):
         return repr(self.value)

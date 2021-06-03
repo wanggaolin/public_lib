@@ -18,4 +18,4 @@ class _syslog(object):
     def error(self, *args, **kwargs):
         syslog.syslog(syslog.LOG_ERR, *args, **kwargs)
 
-_system_logs = _syslog()
+_system_logs = _syslog

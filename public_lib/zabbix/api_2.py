@@ -974,7 +974,7 @@ if __name__ == "__main__":
     # print F.screen_delete_name(name='t2')                 #根据screen 名称删除screen
     # print F.screen_create_host(hostid=10105,name='t21')   #根据hostid建立screen
     # print F.screen_create(    # 创建screen
-    #     name='test1',         # screen 名称
+    #     name='crt.index.html',         # screen 名称
     #     hsize=2,              # 宽
     #     vsize=1,              # 高
     #     data=[772, 591, 594, 694, 697, 626]  # graph,图像id

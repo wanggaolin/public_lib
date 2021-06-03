@@ -33,7 +33,7 @@ def check_card(card_number):
     id_number = str(card_number)
     try:
         map(int,str(id_number)[:-1])
-    except ValueError,e:
+    except Exception as e:
         return False
     if 1800 < int(id_number[6:10]) < 2100 and len(id_number) ==18:
         if int(id_number[10:12]) < 13 and int(id_number[12:14]) < 32:
@@ -62,7 +62,7 @@ def check_mobile(x):
         if len(x) == 11:
             if re.findall(r'^(?:130|131|132|133|134|135|136|137|138|139|145|147|150|151|152|153|155|156|157|158|159|173|175|176|177|178|180|181|182|183|184|185|186|187|188|189)',x):
                 return True
-    except ValueError,e:
+    except Exception as e:
         pass
     return False
 
@@ -74,6 +74,7 @@ def check_symbols(x,re_rule=False):
     :return:
     """
     F = namedtuple('symbols', ['status', "symbols"])
+    x = str(x).strip()
     if x:
         if re_rule is False:
             re_rule = re.compile(r'\*|\.\.|\\')
@@ -108,7 +109,27 @@ class check_req(object):
         'check data is number'
         try:
             float(data)
-        except ValueError, e:
+        except Exception as e:
+            return False
+        return True
+
+    def _number_int(self,data):#判断是否是整数
+        'check data is number'
+        try:
+            if "." in str(data):
+                return False
+            int(data)
+        except Exception as e:
+            return False
+        return True
+
+    def _number_float(self,data):#判断是否是整数
+        'check data is float'
+        try:
+            if not "." in str(data):
+                return False
+            float(data)
+        except Exception as e:
             return False
         return True
 
@@ -151,7 +172,7 @@ class check_req(object):
         return status
 
     def _time_2(self,data):
-        'check data is time [2009-06-23 12:12:12]'
+        'check data is time [2009-06-23 12:12]'
         status = False
         if re.findall('^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}$',data):
             day1 = re.findall('^\d{4}-(\d{1,2})-(\d{1,2})',data)
@@ -164,11 +185,28 @@ class check_req(object):
         msg = kwargs['msg']
         try:
             del self.verfy[kwargs['key_role']]
-        except KeyError,e:
+        except KeyError as e:
             pass
         if errors_msg:
             return errors_msg
         return msg
+
+    def check_net_ip(self,x):
+        end = re.findall(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})$',str(x))
+        if end:
+            a, b, c, d, e = map(int,end[0])
+            if 0 < a < 255 and b < 255 and c < 255 and d < 255 and 1 <= e <= 32:
+                return True
+        return False
+
+    def check_uuid1(self,x):
+        """
+        :param x:  3c74b1eb-f85f-4cdd-8643-876816660706
+        :return:
+        """
+        if re.search(r'^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$',str(x)):
+            return True
+        return False
 
     def rule(self,*args,**kwargs):
         """
@@ -176,31 +214,38 @@ class check_req(object):
         :param kwargs:
             :language:alalrm language,default is zh
             :rule:
-                number:True     必须是数字[小数点/整数/负数]
-                number_str:True 只能输入字母或数字
-                time_day:true	必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
-                time_day_1:true	必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
-                times_1:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
-                times_2:true	必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
-                minlength:10	输入长度最小是 10 的字符串（汉字算一个字符）。
-                maxlength:5	    输入长度最多是 5 的字符串（汉字算一个字符）。
+                number:True         必须是数字[小数点/整数/负数]
+                number_int:True     必须是整数
+                number_float:True   必须是小数点
+                number_str:True     只能输入字母或数字
+                number_str1:True    只能输入字母,数字,划线,中杠,@
+                number_str2:True    只能输入字母,数字,划线,中杠,@,小数点
+                password:True       必须包含大小写字母,数字
+                time_day:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 只验证格式，不验证有效性。
+                time_day_1:true	    必须输入正确格式的日期（ISO），例如：1998/01/2 只验证格式，不验证有效性。
+                times_1:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 12:12:12 只验证格式，不验证有效性。
+                times_2:true	    必须输入正确格式的日期（ISO），例如：2009-06-23 12:12 只验证格式，不验证有效性。
+                minlength:10	    输入长度最小是 10 的字符串（汉字算一个字符）。
+                maxlength:5	        输入长度最多是 5 的字符串（汉字算一个字符）。
                 rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
-                max:5	        输入的数字不能大于 5。
-                min:10	        输入的数字不能小于 10。
-                file:True	    必须是一个文件路径。
-                email:True	    必须是一个邮箱
-                bank:True	    必须是一个银行卡号
-                card:True	    必须是一个身份证号
-                ip:True	        必须是一个合法ip地址
-                mac:True	    必须是一个合法mac地址
-                mobile:True	    必须是一个手机号码
-                symbols:Ture    不得包含特殊符号:*,%,..,\
-                json_load:Ture  必须是一个json可解析的格式
-                domain:Ture     必须是一个域名
-                url:Ture        必须是一个网站链接
-                list:['a','b']  参数必须是a或b
-                type_list:Ture  参数类型必须是list
-                type_dict:Ture  参数类型必须是dict
+                max:5	            输入的数字不能大于 5。
+                min:10	            输入的数字不能小于 10。
+                file:True	        必须是一个文件路径。
+                email:True	        必须是一个邮箱
+                bank:True	        必须是一个银行卡号
+                card:True	        必须是一个身份证号
+                ip:True	            必须是一个合法ip地址
+                ip_net:True	        必须是一个合法ip网络地址
+                ip_route:True	    必须是一个合法ip地址或者网络地址
+                mac:True	        必须是一个合法mac地址
+                mobile:True	        必须是一个手机号码
+                symbols:Ture        不得包含特殊符号:*,%,..,\
+                json_load:Ture      必须是一个json可解析的格式
+                domain:Ture         必须是一个域名
+                url:Ture            必须是一个网站链接
+                list:['a','b']      参数必须是a或b
+                type_list:Ture      参数类型必须是list
+                type_dict:Ture      参数类型必须是dict
                 member_list:[a,b,c] 参数必须是一个list,同步，每个list元素必须在a,b,c其中一个或多个
 
         :return: {}
@@ -214,56 +259,68 @@ class check_req(object):
                 default_error = rule_value.get('error', {})
                 if not name_alias:
                     import warnings
-                    warnings.warn("must be key of alias")
+                    warnings.warn("must be key of alias, rule:%s" % rule_name)
                 if end != False:
                     if end_type is list or end_type is dict:
                         pass
                     else:
-                        end = unicode(str(end), "utf-8")
+                        end = str(end)
                     len_end = len(end)
+                    if type(end) is str:
+                        len_end = len(unicode(end, "utf-8"))
                     if rule_value.get('number') is True: #判断values是否是数字
                         if self._number(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['number'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number',msg=error_message)
 
-                    if rule_value.get('minlength',False) != False: #判断values 位数是否小于n
+                    if rule_value.get('number_int') is True:
+                        if self._number_int(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['number_int'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_int',msg=error_message)
+
+                    if rule_value.get('number_float') is True:
+                        if self._number_float(end) is False:
+                            error_message = "%s%s" % (name_alias,alarm_language['number_float'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_float',msg=error_message)
+
+                    if rule_value.has_key('minlength'): #判断values 位数是否小于n
                         minlength = rule_value.get('minlength')
                         if len_end < minlength:
                             error_message = "%s%s" % (name_alias,alarm_language['minlength'][language_name].replace('{number}',str(minlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='minlength',msg=error_message)
 
-                    if rule_value.get('maxlength',False) != False: #判断values 位数是否大于n
+                    if rule_value.has_key('maxlength'): #判断values 位数是否大于n
                         maxlength = rule_value.get('maxlength')
                         if len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['maxlength'][language_name].replace('{number}',str(maxlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='maxlength',msg=error_message)
 
-                    if rule_value.get('rangelength',False) != False:  # 判断values 位数是在x和y之间
+                    if rule_value.has_key('rangelength'):  # 判断values 位数是在x和y之间
                         rangelength = rule_value.get('rangelength')
                         minlength,maxlength = rangelength
                         if minlength > len_end or len_end > maxlength:
                             error_message = "%s%s" % (name_alias,alarm_language['rangelength'][language_name].replace('{number1}', str(minlength)).replace('{number2}', str(maxlength)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='rangelength',msg=error_message)
 
-                    if rule_value.get('max',False) != False:  # 判断values 是否大于n
+                    if rule_value.has_key('max'):  # 判断values 是否大于n
                         number_max = rule_value.get('max')
                         try:
-                            end = int(end)
+                            end = float(end)
                             if number_max < end:
                                 error_message = "%s%s" % (name_alias,alarm_language['max'][language_name].replace('{number}',number_max))
                                 self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='max',msg=error_message)
-                        except ValueError,e:
+                        except Exception as e:
                             error_message = "%s%s" % (name_alias,alarm_language['max'][language_name].replace('{number}',str(number_max)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='max',msg=error_message)
 
-                    if rule_value.get('min',False) != False:  # 判断values 是否小于n
+                    if rule_value.has_key('min'):  # 判断values 是否小于n
                         number_mix = rule_value.get('min')
                         try:
-                            end = int(end)
+                            end = float(end)
                             if number_mix > end:
                                 error_message = "%s%s" % (name_alias,alarm_language['min'][language_name].replace('{number}',str(number_mix)))
                                 self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='min',msg=error_message)
-                        except ValueError, e:
+                        except Exception as e:
                             error_message = "%s%s" % (name_alias, alarm_language['min'][language_name].replace('{number}',str(number_mix)))
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='min',msg=error_message)
 
@@ -271,6 +328,18 @@ class check_req(object):
                         if self._number_or_str(end) is False:
                             error_message = "%s%s" % (name_alias,alarm_language['number_str'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_str',msg=error_message)
+
+                    if rule_value.get('number_str1') is True:
+                        # if not re.search(r'^\w+$',end):
+                        if not re.search(r'^[\w|\-|\d]+|\@$',str(end)):
+                            error_message = "%s%s" % (name_alias,alarm_language['number_str1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_str1',msg=error_message)
+
+                    if rule_value.get('number_str2') is True:
+                        # if not re.search(r'^\w+$',end):
+                        if not re.search(r'^[\w|\-|\d|\.]+|\@$',str(end)):
+                            error_message = "%s%s" % (name_alias,alarm_language['number_str1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='number_str1',msg=error_message)
 
                     if rule_value.get('time_day') is True:
                         time_day = rule_value.get('time_day')
@@ -309,9 +378,6 @@ class check_req(object):
                         elif re.findall(' ', end):
                             error_message = "%s%s: ' '" % (name_alias,alarm_language['file'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file',msg=error_message)
-                        elif not re.findall('/', end):
-                            error_message = "%s%s: '/'" % (name_alias, alarm_language['file1'][language_name])
-                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='file1',msg=error_message)
 
                     if rule_value.get('email') is True:
                         if not re.findall(r'^[\w|-|_|\.]+@[\w|-|_]+\.(?:com|cn|xin|top|site|net|cc|org|tv|\.)+$',end):
@@ -352,7 +418,7 @@ class check_req(object):
                     if rule_value.get('json_load') is True:
                         try:
                             json.loads(end)
-                        except Exception,e:
+                        except Exception as e:
                             error_message = "%s %s" % (name_alias, alarm_language['json_load'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='json_load',msg=error_message)
 
@@ -378,6 +444,26 @@ class check_req(object):
                         if not end_type is dict:
                             error_message = "%s%s" % (name_alias, alarm_language['type_dict'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='type_dict',msg=error_message)
+                    if rule_value.get('ip_net') is True:
+                        if self.check_net_ip(end) is False:
+                            error_message = "%s%s" % (name_alias, alarm_language['ip_net'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='ip_net',msg=error_message)
+
+                    if rule_value.get('ip_route') is True:
+                        check_status = 0
+                        if self.check_net_ip(end) is False:
+                            check_status += 1
+                        if check_ip(end) is False:
+                            check_status += 1
+                        if check_status >= 2:
+                            error_message = "%s%s" % (name_alias, alarm_language['ip_route'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error,key_name='ip_route', msg=error_message)
+
+                    if rule_value.get('uudi1') is True:
+                        if self.check_uuid1(end) is False:
+                            error_message = "%s%s" % (name_alias, alarm_language['uudi1'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='uudi1',msg=error_message)
+                    #
                     if type(rule_value.get('member_list')) is list:
                         if end_type is list:
                             _l = rule_value.get('member_list')
@@ -389,21 +475,88 @@ class check_req(object):
                             error_message = "%s%s" % (name_alias, alarm_language['type_list'][language_name])
                             self.error['msg'] = self._error(key_role=rule_name, default=default_error, key_name='type_list',msg=error_message)
 
-
+                    if rule_value.get('password') is True:
+                        if not re.search(r'\d+',str(end)):
+                            error_message = "%s%s" % (name_alias,alarm_language['password_number'][language_name])
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='password_number',msg=error_message)
+                        elif not re.search(r'[A-Z]', str(end)):
+                                error_message = "%s%s" % (name_alias, alarm_language['password_Str'][language_name])
+                                self.error['msg'] = self._error(key_role=rule_name, default=default_error,key_name='password_Str', msg=error_message)
+                        elif not re.search(r'[a-z]', str(end)):
+                                error_message = "%s%s" % (name_alias, alarm_language['password_str'][language_name])
+                                self.error['msg'] = self._error(key_role=rule_name, default=default_error,key_name='password_str', msg=error_message)
                 else:
                     try:
                         del self.verfy[rule_name]
-                    except KeyError,e:
+                    except KeyError as e:
                         pass
                     self.error['msg'] = "%s%s" % (name_alias, alarm_language['default'][language_name])
                     self.error['data'] = self.verfy
-        except Exception,e:
+        except Exception as e:
+            print traceback.format_exc()
+            raise RaiseVlues(traceback.format_exc())
+        if self.error['msg'] == 'success':
+            self.error['status'] = True
+        self.error['data'] = self.verfy
+        return self.error
+
+class check_reqs(object):
+    'check argument `data={}`'
+    def __init__(self,*args,**kwargs):
+        """
+        :param kwargs:
+             :data: check data argument,type is dict
+        """
+        self.data = kwargs['data']
+        self.verfy = copy.deepcopy(self.data)
+        self.error = {'status':False,'data':{},'msg':'success'}
+
+    def rule(self,*args,**kwargs):
+        """
+        check argument of rule,type is dict
+        :param kwargs:
+            :language:alalrm language,default is zh
+            :rule:
+                rangelength:[5,10]	输入长度必须介于 5 和 10 之间的字符串（汉字算一个字符）。
+        :return: {}
+        """
+        try:
+            language_name = kwargs.get('language','zh')
+            for rule_name,rule_value in  kwargs['rule'].items(): #遍历所有规则
+                end = self.data.get(rule_name,False) #判断某个字段是非启用过滤规则
+                end_type = type(end)
+                name_alias = rule_value.get('alias', '')
+                default_error = rule_value.get('error', {})
+                if not name_alias:
+                    import warnings
+                    warnings.warn("must be key of alias")
+                if end != False:
+                    if end_type is list or end_type is dict:
+                        pass
+                    else:
+                        end = str(end)
+                    len_end = len(end)
+
+                    if rule_value.get('maxlength',False) != False: #判断values 位数是否大于n
+                        maxlength = rule_value.get('maxlength')
+                        if len_end > maxlength:
+                            error_message = "%s%s" % (name_alias,alarm_language['maxlength'][language_name].replace('{number}',str(maxlength)))
+                            self.error['msg'] = self._error(key_role=rule_name,default=default_error,key_name='maxlength',msg=error_message)
+                else:
+                    try:
+                        del self.verfy[rule_name]
+                    except KeyError as e:
+                        pass
+                    self.error['msg'] = "%s%s" % (name_alias, alarm_language['default'][language_name])
+                    self.error['data'] = self.verfy
+        except Exception as e:
             # raise RaiseVlues(e)
             raise RaiseVlues(traceback.format_exc())
         if self.error['msg'] == 'success':
             self.error['status'] = True
         self.error['data'] = self.verfy
         return self.error
+
 
 if __name__ == "__main__":
     check_bank('123')
