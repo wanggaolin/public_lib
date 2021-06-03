@@ -14,7 +14,7 @@ setuptools.setup(
     keywords = ['public','lib'],
     install_requires = [
         'numpy==1.16.6',
-        'psutil==5.6.0',
+        'psutil==5.6.6',
         'rrdtool==0.1.14',
         'pandas==0.24.2',
         'future',
