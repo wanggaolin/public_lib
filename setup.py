@@ -13,7 +13,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['tests']),
     keywords = ['public','lib'],
     install_requires = [
-        'numpy==1.16.6',
+        'numpy==1.22.0',
         'psutil==5.8.0',
         'rrdtool==0.1.14',
         'pandas==0.24.2',
